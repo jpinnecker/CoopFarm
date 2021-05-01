@@ -46,6 +46,7 @@ public class PlantBehavior : NetworkBehaviour
 
     void OnGrowth(int oldStage, int newStage)
     {
-        // TODO: Notify Animation
+        var body = transform.Find("body");
+        body.GetComponent<Animator>().SetInteger("growthStage",newStage);
     }
 }
