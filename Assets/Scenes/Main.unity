@@ -453,8 +453,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seedTypesPerSlot: 5
   plantTypePrefabs:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 3354211504375414987, guid: ed8ca7c12e4310c48ae3f74a661e1f3c, type: 3}
+  - {fileID: 9111241598023905076, guid: 194737196fd368b44b4a363c3f98cd7a, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
