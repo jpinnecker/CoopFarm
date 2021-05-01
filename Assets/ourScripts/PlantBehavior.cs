@@ -10,6 +10,8 @@ public class PlantBehavior : NetworkBehaviour
     int growthStage = 0;
     [SerializeField]
     double wateringCooldownSeconds = 60;
+    [SerializeField]
+    double fertilizingCooldownSeconds = 60;
 
     // Update is called once per frame
     void Update()
@@ -22,8 +24,13 @@ public class PlantBehavior : NetworkBehaviour
         return wateringCooldownSeconds;
     }
 
+    public double GetFertilizingCooldown()
+    {
+        return fertilizingCooldownSeconds;
+    }
+
     [Server]
-    public void Water() {
+    public void CareFor(int amount = 1) {
         // TODO: Exact Behavior, when to grow
     }
 

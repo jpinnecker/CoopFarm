@@ -14,6 +14,7 @@ public class PlayerState : NetworkBehaviour
     NetworkIdentity currentGarden;
     // Plant Identity -> End time of cooldown
     readonly SyncDictionary<NetworkIdentity, double> wateringCooldowns = new SyncDictionary<NetworkIdentity, double>();
+    readonly SyncDictionary<NetworkIdentity, double> fertilizingCooldowns = new SyncDictionary<NetworkIdentity, double>();
     // Seed type numbers, -1 is empty, only unlocked slots
     readonly SyncList<int> seedInventory = new SyncList<int>();
 
@@ -21,14 +22,19 @@ public class PlayerState : NetworkBehaviour
     {
         UnlockSeedSlot();
     }
-    public override void OnStartClient() {
+    public override void OnStartClient()
         wateringCooldowns.Callback += OnWateringCooldownUpdate;
+        fertilizingCooldowns.Callback += OnFertilizingCooldownUpdate;
         seedInventory.Callback += OnInventoryUpdate;
     }
 
     private void OnWateringCooldownUpdate(SyncIDictionary<NetworkIdentity, double>.Operation op, NetworkIdentity key, double item)
     {
-        // TODO: Update visuals
+        // TODO: Update visuals?
+    }
+    private void OnFertilizingCooldownUpdate(SyncIDictionary<NetworkIdentity, double>.Operation op, NetworkIdentity key, double item)
+    {
+        // TODO: Update visuals?
     }
 
     private void OnInventoryUpdate(SyncList<int>.Operation op, int itemIndex, int oldItem, int newItem)
@@ -54,17 +60,31 @@ public class PlayerState : NetworkBehaviour
         // TODO: Place player game object in this garden
     }
 
-    [Command]
-    public void CmdWaterPlant(PlantBehavior plant) {
+    private delegate void CooldownActionDelegate(PlantBehavior plant);
+    private void PerformCooldownAction(PlantBehavior plant, SyncDictionary<NetworkIdentity, double> cooldowns, double cooldownDuration, CooldownActionDelegate action)
+    {
         var netid = plant.gameObject.GetComponent<NetworkIdentity>() as NetworkIdentity;
         var time = NetworkTime.time;
-        var cooldownEnd = time - plant.GetWateringCooldown(); // If we haven't watered this plant yet, pretend the cooldown just elapsed.
-        wateringCooldowns.TryGetValue(netid, out cooldownEnd);
-        if(time + NetworkTime.timeStandardDeviation >= cooldownEnd) // Give some wiggle room for comparison to account for time variation
+        var cooldownEnd = time - cooldownDuration; // If we haven't watered this plant yet, pretend the cooldown just elapsed.
+        cooldowns.TryGetValue(netid, out cooldownEnd);
+        if (time + NetworkTime.timeStandardDeviation >= cooldownEnd) // Give some wiggle room for comparison to account for time variation
         {
-            plant.Water();
-            wateringCooldowns[netid] = time + plant.GetWateringCooldown();
+            action(plant);
+            cooldowns[netid] = time + cooldownDuration;
         }
+
+    }
+
+    [Command]
+    public void CmdWaterPlant(PlantBehavior plant)
+    {
+        PerformCooldownAction(plant, wateringCooldowns, plant.GetWateringCooldown(), p => p.CareFor());
+    }
+
+    [Command]
+    public void CmdFertilizePlant(PlantBehavior plant)
+    {
+        PerformCooldownAction(plant, fertilizingCooldowns, plant.GetFertilizingCooldown(), p => p.CareFor(2));
     }
 
     [Server]
