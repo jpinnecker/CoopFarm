@@ -115,16 +115,25 @@ public class PlayerState : NetworkBehaviour
             if (result)
             {
                 fertilizingCounter++;
-                checkSeedSlotUnlocks();
+                CheckSeedSlotUnlocks();
                 fertilizingCooldown = time + fertilizingCooldownDuration;
             }
         }
     }
 
     [Server]
-    private void checkSeedSlotUnlocks()
+    private void CheckSeedSlotUnlocks()
     {
-        // TODO: Implement
+        for(int i = 0; i < fertilizationsForSeedSlotUnlock.Length; i++)
+        {
+            if(fertilizingCounter >= fertilizationsForSeedSlotUnlock[i])
+            {
+                if(seedInventory.Count < i + 2)
+                {
+                    UnlockSeedSlot();
+                }
+            }
+        }
     }
 
     [Server]
