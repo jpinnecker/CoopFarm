@@ -43,7 +43,7 @@ public class PlayerState : NetworkBehaviour
     }
 
     [Command]
-    public void CmdSetName(string name)
+    public void CmdSetName(string name) // May become a normal [Server] method
     {
         this.name = name;
     }
@@ -96,7 +96,7 @@ public class PlayerState : NetworkBehaviour
     [Server]
     public void AwardSeeds()
     {
-        for(int i = 0; i < seedInventory.Count; i++)
+        for (int i = 0; i < seedInventory.Count; i++)
         {
             seedInventory[i] = Random.Range(i * seedTypesPerSlot, (i + 1) * seedTypesPerSlot);
         }
