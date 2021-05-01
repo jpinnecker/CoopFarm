@@ -14,7 +14,7 @@ public class PlayerState : NetworkBehaviour
     NetworkIdentity currentGarden;
     // Plant Identity -> End time of cooldown
     readonly SyncDictionary<NetworkIdentity, double> wateringCooldowns = new SyncDictionary<NetworkIdentity, double>();
-    // Seed type numbers, 0 is empty, only unlocked slots
+    // Seed type numbers, -1 is empty, only unlocked slots
     readonly SyncList<int> seedInventory = new SyncList<int>();
 
     public override void OnStartServer()
@@ -70,7 +70,7 @@ public class PlayerState : NetworkBehaviour
     [Server]
     public void UnlockSeedSlot()
     {
-        seedInventory.Add(0);
+        seedInventory.Add(-1);
     }
 
     [Server]
