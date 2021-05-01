@@ -5,7 +5,6 @@ using Mirror;
 
 public class PlayerState : NetworkBehaviour
 {
-    private const int seedTypesPerSlot = 5;
     [SyncVar]
     string playerName;
     [SyncVar]
@@ -145,6 +144,13 @@ public class PlayerState : NetworkBehaviour
     [Server]
     public void AwardSeeds()
     {
+        var typeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
+        if (typeMapping == null)
+        {
+            Debug.LogError("Couldn't find PlantTypeMapping object.");
+            return;
+        }
+        var seedTypesPerSlot = typeMapping.GetSeedTypesPerSlot();
         for (int i = 0; i < seedInventory.Count; i++)
         {
             seedInventory[i] = Random.Range(i * seedTypesPerSlot, (i + 1) * seedTypesPerSlot);
