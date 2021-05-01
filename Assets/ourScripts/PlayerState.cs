@@ -169,7 +169,13 @@ public class PlayerState : NetworkBehaviour
             Debug.LogWarning($"Atempt to plant a seed in a garden that doesn't belong to the acting player.");
             return;
         }
-        PlantBehavior plantPrefab = null; // TODO: Get Prefab from plant type table
+        var typeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
+        if(typeMapping == null)
+        {
+            Debug.LogError("Couldn't find PlantTypeMapping object.");
+            return;
+        }
+        PlantBehavior plantPrefab = typeMapping.GetPlantTypePrefab(seedInventory[seedSlot]);
         var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
         NetworkServer.Spawn(plant.gameObject);
     }
