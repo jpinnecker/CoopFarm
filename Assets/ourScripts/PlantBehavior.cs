@@ -27,6 +27,13 @@ public class PlantBehavior : NetworkBehaviour
         return fertilizingCooldownSeconds;
     }
 
+    // For testing in editor
+    [ContextMenu("Care for")]
+    public void Care()
+    {
+        CareFor();
+    }
+
     [Server]
     public void CareFor(int amount = 1) {
         currentCares += amount;
