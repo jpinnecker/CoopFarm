@@ -12,12 +12,10 @@ public class PlantBehavior : NetworkBehaviour
     double wateringCooldownSeconds = 60;
     [SerializeField]
     double fertilizingCooldownSeconds = 60;
+    [SerializeField]
+    int caresForGrowth = 7;
 
-    // Update is called once per frame
-    void Update()
-    {
-        // TODO: Maybe needed growing logic
-    }
+    int currentCares = 0;
 
     public double GetWateringCooldown()
     {
@@ -31,7 +29,12 @@ public class PlantBehavior : NetworkBehaviour
 
     [Server]
     public void CareFor(int amount = 1) {
-        // TODO: Exact Behavior, when to grow
+        currentCares += amount;
+        if(currentCares >= caresForGrowth)
+        {
+            growthStage++;
+            currentCares = 0;
+        }
     }
 
     void OnGrowth(int oldStage, int newStage)
