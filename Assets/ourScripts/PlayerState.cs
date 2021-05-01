@@ -55,7 +55,7 @@ public class PlayerState : NetworkBehaviour
     }
 
     [Command]
-    public void CmdWaterPlant(Plant plant) {
+    public void CmdWaterPlant(PlantBehavior plant) {
         var netid = plant.gameObject.GetComponent<NetworkIdentity>() as NetworkIdentity;
         var time = NetworkTime.time;
         var cooldownEnd = time - plant.GetWateringCooldown(); // If we haven't watered this plant yet, pretend the cooldown just elapsed.
