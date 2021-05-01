@@ -64,3 +64,5 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   wateringCooldownSeconds: 60
+  fertilizingCooldownSeconds: 60
+  caresForGrowth: 7
