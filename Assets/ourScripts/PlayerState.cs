@@ -142,4 +142,26 @@ public class PlayerState : NetworkBehaviour
         }
     }
 
+    [Command]
+    public void CmdPlantSeed(int seedSlot, Vector2 location)
+    {
+        if (seedSlot >= seedInventory.Count)
+        {
+            Debug.LogWarning($"Atempt to plant a seed from slot {seedSlot}, but the player has only {seedInventory.Count} slots unlocked.");
+            return;
+        }
+        if (seedInventory[seedSlot] == -1)
+        {
+            Debug.LogWarning($"Atempt to plant a seed from slot {seedSlot}, but that slot is empty.");
+            return;
+        }
+        if (currentGarden.netId != ownGarden.netId)
+        {
+            Debug.LogWarning($"Atempt to plant a seed in a garden that doesn't belong to the acting player.");
+            return;
+        }
+        PlantBehavior plantPrefab = null; // TODO: Get Prefab from plant type table
+        var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
+        NetworkServer.Spawn(plant.gameObject);
+    }
 }
