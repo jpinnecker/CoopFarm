@@ -12,7 +12,7 @@ public class PlayerState : NetworkBehaviour
     NetworkIdentity ownGarden;
     [SyncVar]
     NetworkIdentity currentGarden;
-    // Plant Identity -> Time of last watering
+    // Plant Identity -> End time of cooldown
     readonly SyncDictionary<NetworkIdentity, double> wateringCooldowns = new SyncDictionary<NetworkIdentity, double>();
     // Seed type numbers, 0 is empty, only unlocked slots
     readonly SyncList<int> seedInventory = new SyncList<int>();
