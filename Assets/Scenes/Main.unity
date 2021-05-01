@@ -451,6 +451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fcd328bd738a6845a93c423e0c3ba06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seedTypesPerSlot: 5
   plantTypePrefabs:
   - {fileID: 0}
   - {fileID: 0}
