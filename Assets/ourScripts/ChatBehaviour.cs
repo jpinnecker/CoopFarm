@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 // This Script is based on the following Tutorial : https://www.youtube.com/watch?v=p-2QFmCMBt8
 // Be warned that I relocated the \n addition to the message.
@@ -11,17 +12,20 @@ using TMPro;
 
 public class ChatBehaviour : NetworkBehaviour {
 
-    [SerializeField] private GameObject chatUI = null; // This is containing the elements and can be hidden.
-    [SerializeField] private TMP_Text chatText = null; // Here the received/sent messages are displayed
-    [SerializeField] private TMP_InputField inputField = null; // Here new messages are typed
+    private GameObject chatUI = null; // This is containing the elements and can be hidden.
+    private TMP_Text chatText = null; // Here the received/sent messages are displayed
+    private TMP_InputField inputField = null; // Here new messages are typed
 
     [SerializeField] private playerController plControl = null; // needed to block Input
 
     private static event Action<string> OnMessage;
-    private static event Action<string> OnTyping;
 
     //When this (not any other) ChatBehaviour is initialized, register to chat feed
     public override void OnStartAuthority() {
+
+        chatUI = GameObject.FindWithTag("ChatUI");
+        chatText = GameObject.FindWithTag("ChatText").GetComponent(typeof(TMP_Text)) as TMP_Text ;
+
         chatUI.SetActive(true);
 
         OnMessage += HandleNewMessage;
@@ -36,7 +40,10 @@ public class ChatBehaviour : NetworkBehaviour {
     }
 
     // Add new message to chat
+    [Client]
     private void HandleNewMessage(string message) {
+        Debug.Log(message);
+        Debug.Log(chatText);
         chatText.text += "\n" + message;
     }
 
@@ -48,8 +55,6 @@ public class ChatBehaviour : NetworkBehaviour {
         if (string.IsNullOrWhiteSpace(message)) { return; }
 
         CmdSendMessage(message);
-
-        inputField.text = string.Empty;
     }
 
     //Send own message
