@@ -93,83 +93,98 @@ namespace Telepathy
                 // keep accepting new clients
                 while (true)
                 {
-                    // wait and accept new client
-                    // note: 'using' sucks here because it will try to
-                    // dispose after thread was started but we still need it
-                    // in the thread
-                    TcpClient client = listener.AcceptTcpClient();
-
-                    // set socket options
-                    client.NoDelay = NoDelay;
-                    client.SendTimeout = SendTimeout;
-                    client.ReceiveTimeout = ReceiveTimeout;
-
-                    // generate the next connection id (thread safely)
-                    int connectionId = NextConnectionId();
-
-                    // add to dict immediately
-                    ConnectionState connection = new ConnectionState(client, MaxMessageSize);
-                    clients[connectionId] = connection;
-
-                    // spawn a send thread for each client
-                    Thread sendThread = new Thread(() =>
+                    try
                     {
-                        // wrap in try-catch, otherwise Thread exceptions
-                        // are silent
-                        try
-                        {
-                            // run the send loop
-                            // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
-                            ThreadFunctions.SendLoop(connectionId, client, connection.sendPipe, connection.sendPending);
-                        }
-                        catch (ThreadAbortException)
-                        {
-                            // happens on stop. don't log anything.
-                            // (we catch it in SendLoop too, but it still gets
-                            //  through to here when aborting. don't show an
-                            //  error.)
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Error("Server send thread exception: " + exception);
-                        }
-                    });
-                    sendThread.IsBackground = true;
-                    sendThread.Start();
+                        // wait and accept new client
+                        // note: 'using' sucks here because it will try to
+                        // dispose after thread was started but we still need it
+                        // in the thread
+                        TcpClient client = listener.AcceptTcpClient();
 
-                    // spawn a receive thread for each client
-                    Thread receiveThread = new Thread(() =>
+                        // set socket options
+                        client.NoDelay = NoDelay;
+                        client.SendTimeout = SendTimeout;
+                        client.ReceiveTimeout = ReceiveTimeout;
+
+                        // generate the next connection id (thread safely)
+                        int connectionId = NextConnectionId();
+
+                        // add to dict immediately
+                        ConnectionState connection = new ConnectionState(client, MaxMessageSize);
+                        clients[connectionId] = connection;
+
+                        // spawn a send thread for each client
+                        Thread sendThread = new Thread(() =>
+                        {
+                            // wrap in try-catch, otherwise Thread exceptions
+                            // are silent
+                            try
+                            {
+                                // run the send loop
+                                // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
+                                ThreadFunctions.SendLoop(connectionId, client, connection.sendPipe, connection.sendPending);
+                            }
+                            catch (ThreadAbortException)
+                            {
+                                // happens on stop. don't log anything.
+                                // (we catch it in SendLoop too, but it still gets
+                                //  through to here when aborting. don't show an
+                                //  error.)
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Error("Server send thread exception: " + exception);
+                            }
+                        });
+                        sendThread.IsBackground = true;
+                        sendThread.Start();
+
+                        // spawn a receive thread for each client
+                        Thread receiveThread = new Thread(() =>
+                        {
+                            // wrap in try-catch, otherwise Thread exceptions
+                            // are silent
+                            try
+                            {
+                                // run the receive loop
+                                // (receive pipe is shared across all loops)
+                                ThreadFunctions.ReceiveLoop(connectionId, client, MaxMessageSize, receivePipe, ReceiveQueueLimit);
+
+                                // IMPORTANT: do NOT remove from clients after the
+                                // thread ends. need to do it in Tick() so that the
+                                // disconnect event in the pipe is still processed.
+                                // (removing client immediately would mean that the
+                                //  pipe is lost and the disconnect event is never
+                                //  processed)
+
+                                // sendthread might be waiting on ManualResetEvent,
+                                // so let's make sure to end it if the connection
+                                // closed.
+                                // otherwise the send thread would only end if it's
+                                // actually sending data while the connection is
+                                // closed.
+                                sendThread.Interrupt();
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Error("Server client thread exception: " + exception);
+                            }
+                        });
+                        receiveThread.IsBackground = true;
+                        receiveThread.Start();
+                    }
+                    catch (SocketException exception)
                     {
-                        // wrap in try-catch, otherwise Thread exceptions
-                        // are silent
-                        try
+                        if (exception.ErrorCode == 10035) // WSAEWOULDBLOCK, don't stop server thread
                         {
-                            // run the receive loop
-                            // (receive pipe is shared across all loops)
-                            ThreadFunctions.ReceiveLoop(connectionId, client, MaxMessageSize, receivePipe, ReceiveQueueLimit);
-
-                            // IMPORTANT: do NOT remove from clients after the
-                            // thread ends. need to do it in Tick() so that the
-                            // disconnect event in the pipe is still processed.
-                            // (removing client immediately would mean that the
-                            //  pipe is lost and the disconnect event is never
-                            //  processed)
-
-                            // sendthread might be waiting on ManualResetEvent,
-                            // so let's make sure to end it if the connection
-                            // closed.
-                            // otherwise the send thread would only end if it's
-                            // actually sending data while the connection is
-                            // closed.
-                            sendThread.Interrupt();
+                            //Log.Info ("Caught WSAEWOULDBLOCK, yielding and retrying later...");
+                            Thread.Yield();
                         }
-                        catch (Exception exception)
+                        else
                         {
-                            Log.Error("Server client thread exception: " + exception);
+                            throw exception;
                         }
-                    });
-                    receiveThread.IsBackground = true;
-                    receiveThread.Start();
+                    }
                 }
             }
             catch (ThreadAbortException exception)
