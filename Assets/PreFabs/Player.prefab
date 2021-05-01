@@ -238,7 +238,7 @@ MonoBehaviour:
   syncInterval: 0.1
   fertilizingCooldownDuration: 60
   wateringsForSeedAward: 10
-  fertilizationsForSeedSlotUnlock: 000000000000000000000000
+  fertilizationsForSeedSlotUnlock: 050000000f0000001e000000
 --- !u!114 &528582589374832833
 MonoBehaviour:
   m_ObjectHideFlags: 0

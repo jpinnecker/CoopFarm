@@ -27,7 +27,7 @@ public class PlayerState : NetworkBehaviour
     [SerializeField]
     int wateringsForSeedAward = 10;
     [SerializeField]
-    int[] fertilizationsForSeedSlotUnlock = new int[3];
+    int[] fertilizationsForSeedSlotUnlock = new int[] { 5, 15, 30 };
 
     public override void OnStartServer()
     {
