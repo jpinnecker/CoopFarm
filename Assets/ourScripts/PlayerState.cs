@@ -28,6 +28,18 @@ public class PlayerState : NetworkBehaviour
     [SerializeField]
     int[] fertilizationsForSeedSlotUnlock = new int[] { 5, 15, 30 };
 
+    // Cached references:
+    private PlantTypeMapping plantTypeMapping;
+
+    void Start()
+    {
+        plantTypeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
+        if (plantTypeMapping == null)
+        {
+            Debug.LogError("Couldn't find PlantTypeMapping object.");
+        }
+    }
+
     public override void OnStartServer()
     {
         UnlockSeedSlot();
@@ -144,13 +156,7 @@ public class PlayerState : NetworkBehaviour
     [Server]
     public void AwardSeeds()
     {
-        var typeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
-        if (typeMapping == null)
-        {
-            Debug.LogError("Couldn't find PlantTypeMapping object.");
-            return;
-        }
-        var seedTypesPerSlot = typeMapping.GetSeedTypesPerSlot();
+        var seedTypesPerSlot = plantTypeMapping.GetSeedTypesPerSlot();
         for (int i = 0; i < seedInventory.Count; i++)
         {
             seedInventory[i] = Random.Range(i * seedTypesPerSlot, (i + 1) * seedTypesPerSlot);
@@ -175,13 +181,7 @@ public class PlayerState : NetworkBehaviour
             Debug.LogWarning($"Atempt to plant a seed in a garden that doesn't belong to the acting player.");
             return;
         }
-        var typeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
-        if(typeMapping == null)
-        {
-            Debug.LogError("Couldn't find PlantTypeMapping object.");
-            return;
-        }
-        PlantBehavior plantPrefab = typeMapping.GetPlantTypePrefab(seedInventory[seedSlot]);
+        PlantBehavior plantPrefab = plantTypeMapping.GetPlantTypePrefab(seedInventory[seedSlot]);
         var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
         NetworkServer.Spawn(plant.gameObject);
     }
