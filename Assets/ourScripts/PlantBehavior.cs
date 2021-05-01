@@ -33,6 +33,11 @@ public class PlantBehavior : NetworkBehaviour
     {
         CareFor();
     }
+    [ContextMenu("Care for (7)")]
+    public void Care7()
+    {
+        CareFor(7);
+    }
 
     [Server]
     public void CareFor(int amount = 1) {
