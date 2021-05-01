@@ -18,11 +18,23 @@ public class PlayerState : NetworkBehaviour
     // Seed type numbers, -1 is empty, only unlocked slots
     readonly SyncList<int> seedInventory = new SyncList<int>();
 
+    int wateringCounter = 0;
+    int fertilizingCounter = 0;
+    double fertilizingCooldown = 0;
+
+    [SerializeField]
+    double fertilizingCooldownDuration = 60;
+    [SerializeField]
+    int wateringsForSeedAward = 10;
+    [SerializeField]
+    int[] fertilizationsForSeedSlotUnlock = new int[3];
+
     public override void OnStartServer()
     {
         UnlockSeedSlot();
     }
     public override void OnStartClient()
+    {
         wateringCooldowns.Callback += OnWateringCooldownUpdate;
         fertilizingCooldowns.Callback += OnFertilizingCooldownUpdate;
         seedInventory.Callback += OnInventoryUpdate;
@@ -61,7 +73,8 @@ public class PlayerState : NetworkBehaviour
     }
 
     private delegate void CooldownActionDelegate(PlantBehavior plant);
-    private void PerformCooldownAction(PlantBehavior plant, SyncDictionary<NetworkIdentity, double> cooldowns, double cooldownDuration, CooldownActionDelegate action)
+    [Server]
+    private bool PerformCooldownAction(PlantBehavior plant, SyncDictionary<NetworkIdentity, double> cooldowns, double cooldownDuration, CooldownActionDelegate action, ref int counter)
     {
         var netid = plant.gameObject.GetComponent<NetworkIdentity>() as NetworkIdentity;
         var time = NetworkTime.time;
@@ -71,20 +84,47 @@ public class PlayerState : NetworkBehaviour
         {
             action(plant);
             cooldowns[netid] = time + cooldownDuration;
+            counter++;
+            return true;
         }
-
+        return false;
     }
 
     [Command]
     public void CmdWaterPlant(PlantBehavior plant)
     {
-        PerformCooldownAction(plant, wateringCooldowns, plant.GetWateringCooldown(), p => p.CareFor());
+        var result = PerformCooldownAction(plant, wateringCooldowns, plant.GetWateringCooldown(), p => p.CareFor(), ref wateringCounter);
+        if (result)
+        {
+            wateringCounter++;
+            if (wateringCounter >= wateringsForSeedAward)
+            {
+                AwardSeeds();
+                wateringCounter = 0;
+            }
+        }
     }
 
     [Command]
     public void CmdFertilizePlant(PlantBehavior plant)
     {
-        PerformCooldownAction(plant, fertilizingCooldowns, plant.GetFertilizingCooldown(), p => p.CareFor(2));
+        var time = NetworkTime.time;
+        if (time + NetworkTime.timeStandardDeviation >= fertilizingCooldown)
+        {
+            var result = PerformCooldownAction(plant, fertilizingCooldowns, plant.GetFertilizingCooldown(), p => p.CareFor(2), ref fertilizingCounter);
+            if (result)
+            {
+                fertilizingCounter++;
+                checkSeedSlotUnlocks();
+                fertilizingCooldown = time + fertilizingCooldownDuration;
+            }
+        }
+    }
+
+    [Server]
+    private void checkSeedSlotUnlocks()
+    {
+        // TODO: Implement
     }
 
     [Server]
