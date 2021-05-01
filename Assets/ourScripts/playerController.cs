@@ -6,14 +6,21 @@ using Mirror;
 public class playerController : NetworkBehaviour
 {
     private float movespeed = 0.2f;
+    private bool isBlocked = false;
 
     // Is outside of camera elsewise
     public void Start() {
         transform.position = new Vector3(0f, 0f, 0f);
     }
 
+    public void changeBlock() {
+        isBlocked = !isBlocked;
+    }
+
     public void Update() {
-        handleMovement();
+        if (! isBlocked) {
+            handleMovement();
+        }
     }
 
     // Movement/Input behaviour

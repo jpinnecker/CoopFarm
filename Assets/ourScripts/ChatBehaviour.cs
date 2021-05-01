@@ -15,7 +15,10 @@ public class ChatBehaviour : NetworkBehaviour {
     [SerializeField] private TMP_Text chatText = null; // Here the received/sent messages are displayed
     [SerializeField] private TMP_InputField inputField = null; // Here new messages are typed
 
+    [SerializeField] private playerController plControl = null; // needed to block Input
+
     private static event Action<string> OnMessage;
+    private static event Action<string> OnTyping;
 
     //When this (not any other) ChatBehaviour is initialized, register to chat feed
     public override void OnStartAuthority() {
@@ -25,8 +28,8 @@ public class ChatBehaviour : NetworkBehaviour {
     }
 
     // unregister from chat feed
-    [ClientCallback] // only on Clients
-    private void OnDestroy() { 
+    [ClientCallback]
+    private void OnDestroy() {
         if (!hasAuthority) { return; }
 
         OnMessage -= HandleNewMessage;
@@ -38,7 +41,7 @@ public class ChatBehaviour : NetworkBehaviour {
     }
 
     //Handle input field
-    [Client]
+    [Client] // Client only
     public void Send(string message) {
         if (!Input.GetKeyDown(KeyCode.Return)) { return; }
 
@@ -50,15 +53,20 @@ public class ChatBehaviour : NetworkBehaviour {
     }
 
     //Send own message
-    [Command]
+    [Command] // Client calls, server runs
     private void CmdSendMessage(string message) {
         RpcHandleMessage($"[{connectionToClient.connectionId}]: {message}");
     }
 
     //Receive message
-    [ClientRpc]
+    [ClientRpc] // Server calls, all clients run
     private void RpcHandleMessage(string message) {
         OnMessage?.Invoke(message);
     }
 
+    //Block Movement while in Input
+    [Client]
+    public void BlockInput() {
+        plControl.changeBlock();
+    }
 }
