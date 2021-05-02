@@ -69,9 +69,9 @@ public class InteractionUI : NetworkBehaviour {
         seedSprites[1, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
 
         for (int i = 3; i < 20; i++) { // Numbers shifted by 1 - array
-            seedSprites[i, 0] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_normal");
-            seedSprites[i, 1] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_ausgewählt");
-            seedSprites[i, 2] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_ausgegraut");
+            seedSprites[i, 0] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "_Reiter" + "_normal");
+            seedSprites[i, 1] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "_Reiter" + "_ausgewählt");
+            seedSprites[i, 2] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "_Reiter" + "_ausgegraut");
         }
 
         sprites[3, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
