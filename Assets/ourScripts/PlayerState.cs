@@ -301,6 +301,20 @@ public class PlayerState : NetworkBehaviour
     }
 
     public void randomGarden() {
+        int max = GardenBehaviour.gardenList.Count;
+        int index = Random.Range(0, max ); // Max is exclusive => no index overflow
+        gotoGarden(index);
         return; // TODO
+    }
+
+    private void gotoGarden(int gardenNr) {
+        GardenBehaviour newGarden = GardenBehaviour.gardenList[gardenNr];
+        NetworkIdentity netwID = newGarden.gameObject.GetComponent(typeof(NetworkIdentity)) as NetworkIdentity;
+        Camera cam = Camera.main;
+        cam.transform.position = newGarden.transform.position + new Vector3(0, 0, -15);
+
+        GameObject playerObj = NetworkClient.localPlayer.gameObject;
+        playerObj.transform.position = newGarden.transform.position;
+
     }
 }

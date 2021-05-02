@@ -6,7 +6,7 @@ using System;
 
 public class GardenBehaviour : NetworkBehaviour
 {
-    static List<GardenBehaviour> gardenList = new List<GardenBehaviour>();
+    public static List<GardenBehaviour> gardenList = new List<GardenBehaviour>();
     private int gardenNr = -1;
 
     private static int x_core_dist = 100;

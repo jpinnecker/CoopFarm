@@ -251,4 +251,5 @@ public class InteractionUI : NetworkBehaviour {
     }
     // Left mousebutton is handled by onCLicked events
 
+
 }
