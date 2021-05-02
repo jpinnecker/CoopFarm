@@ -6,7 +6,6 @@ using Mirror;
 // This Script is based on the following Tutorial : https://www.youtube.com/watch?v=p-2QFmCMBt8
 // Be warned that I relocated the \n addition to the message.
 
-using Mirror;
 using System;
 using TMPro;
 

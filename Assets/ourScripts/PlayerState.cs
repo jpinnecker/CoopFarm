@@ -20,6 +20,8 @@ public class PlayerState : NetworkBehaviour
     int wateringCounter = 0;
     int fertilizingCounter = 0;
     double fertilizingCooldown = 0;
+    
+    private InteractionUI interacUI;
 
     [SerializeField]
     double fertilizingCooldownDuration = 60;
@@ -49,6 +51,8 @@ public class PlayerState : NetworkBehaviour
         wateringCooldowns.Callback += OnWateringCooldownUpdate;
         fertilizingCooldowns.Callback += OnFertilizingCooldownUpdate;
         seedInventory.Callback += OnInventoryUpdate;
+
+        interacUI = GameObject.FindWithTag("InteracUI").GetComponent(typeof(InteractionUI)) as InteractionUI;
     }
 
     private void OnWateringCooldownUpdate(SyncIDictionary<NetworkIdentity, double>.Operation op, NetworkIdentity key, double item)
@@ -80,7 +84,7 @@ public class PlayerState : NetworkBehaviour
     public void CmdEnterGarden(NetworkIdentity garden)
     {
         currentGarden = garden;
-        // TODO: Place player game object in this garden
+        // TODO: Place player game object and their camera object in this garden
     }
 
     private delegate void CooldownActionDelegate(PlantBehavior plant);
@@ -184,5 +188,108 @@ public class PlayerState : NetworkBehaviour
         PlantBehavior plantPrefab = plantTypeMapping.GetPlantTypePrefab(seedInventory[seedSlot]);
         var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
         NetworkServer.Spawn(plant.gameObject);
+    }
+
+    [Command]
+    public void cmdPlantInteraction(PlantBehavior plant) { // Does NOT cover new plant
+        int toolNr = interacUI.currentlySelected;
+        switch (toolNr) { 
+            case -1: // No tool selected
+                return;
+
+            case 0: //SHOVEL
+                if (currentGarden.netId != ownGarden.netId) {
+                    Debug.LogWarning("Tried to use shovel on foreign soil!");
+                } else {
+                    Destroy(plant.gameObject);
+                }
+                break;
+
+            case 1: //WATERING
+                if (currentGarden.netId == ownGarden.netId) {
+                    Debug.LogWarning("Tried to wet their plants!");
+                } else {
+                    PerformCooldownAction(plant, wateringCooldowns, 0, CmdWaterPlant, ref wateringCounter);
+                    UpdateInteracUI();
+                }
+
+                break;
+
+            case 2: //MANURE
+                if (currentGarden.netId == ownGarden.netId) {
+                    Debug.LogWarning("Tried to dung their plants");
+                } else {
+                    PerformCooldownAction(plant, wateringCooldowns, 0, CmdFertilizePlant, ref wateringCounter);
+                    UpdateInteracUI();
+                }
+                break;
+
+            case 3: //SEED 1
+            case 4: //SEED 2
+            case 5: //SEED 3
+            case 6: //SEED 4
+                Debug.LogWarning("Cannot plant here - there is already another plant.");
+                break;
+
+            default:
+                Debug.Log("An Error has occured - currentlySelected int from InteractionUI is wrong");
+                break;
+        }
+    }
+
+    [Command]
+    public void BackgroundClick() { // Used to plant new plants
+        int slotNr = interacUI.currentlySelected;
+        switch (slotNr) {
+            case -1: // No tool selected
+                return;
+
+            case 0: //SHOVEL
+            case 1: //WATERING
+            case 2: //MANURE
+                Debug.LogWarning("Cannot use thsi tool here - there is nothing to interact with");
+                return;
+
+            case 3: //SEED 1
+            case 4: //SEED 2
+            case 5: //SEED 3
+            case 6: //SEED 4
+
+                int seedNr = slotNr - 3;
+                if (seedInventory[slotNr - 3] <= 0) {
+                    Debug.LogWarning("There are no seeds left");
+                    return;
+                }
+
+                Vector3 position = Input.mousePosition;
+                CmdPlantSeed(slotNr - 3, position);
+                seedInventory[slotNr] -= 1;
+                UpdateInteracUI();
+                return;
+
+            default:
+                Debug.Log("An Error has occured - currentlySelected int from InteractionUI is wrong");
+                break;
+        }
+    }
+
+    public void UpdateInteracUI() {
+
+        if (currentGarden.netId == ownGarden.netId) {
+            interacUI.greyItem(0);
+            interacUI.ungreyItem(1);
+        } else {
+            interacUI.greyItem(1);
+            interacUI.ungreyItem(0);
+        }
+
+        // TODO Manure/Dung Setting
+
+        interacUI.setUnlockedSeeds(seedInventory.Count);
+        for (int i = 0; i < 4; i++) {
+            if (seedInventory[i] <= 0 ) {
+                interacUI.greyItem(i);
+            }
+        }
     }
 }

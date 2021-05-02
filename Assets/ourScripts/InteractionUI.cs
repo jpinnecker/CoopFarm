@@ -8,8 +8,7 @@ using Mirror;
 public class InteractionUI : NetworkBehaviour
 {
 
-    // What plants have been watered
-    //public SyncDictionary<UnityEngine.Object, DateTime> WateringTimes = new SyncDictionary<UnityEngine.Object, DateTime>();
+    // ============================================== Vars
 
     // What seeds are in the Interface
     private int[] SeedContent = new int[4];
@@ -34,15 +33,10 @@ public class InteractionUI : NetworkBehaviour
     }
 
     public void Update() {
-        if (Input.GetMouseButton(1) ) { // Right mouse button
-            deselectButtons();
-            currentlySelected = -1;
-            updateButtons();
-            Debug.Log("currentlySelected is " + currentlySelected);
-        }
+        mouseInputHandle();
     }
 
-    // ============================================= Button selection management
+    // ============================================= Sprites
 
     public void loadSprites() {
         sprites = new Sprite[7, 4];
@@ -65,8 +59,16 @@ public class InteractionUI : NetworkBehaviour
         sprites[4, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         sprites[4, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[4, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
+        sprites[5, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
+        sprites[5, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
+        sprites[5, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
+        sprites[6, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
+        sprites[6, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
+        sprites[6, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
 
     }
+
+    // ====================================================== Clicked Events
 
     public void onShovelClicked() { // button index 0
         if (buttonStates[0] == 0) {
@@ -138,6 +140,17 @@ public class InteractionUI : NetworkBehaviour
         }
     }
 
+    public void audioButtonPressed() {
+        audioIsOn = !audioIsOn;
+        if (audioIsOn) {
+            audioButton.image.sprite = audioOnSprite;
+        } else {
+            audioButton.image.sprite = audioOffSprite;
+        }
+    }
+
+    // ============================================== Utility
+
     private void deselectButtons() {
         for (int i = 0; i < 6; i++) {
             if (buttonStates[i] == 1) {
@@ -152,38 +165,43 @@ public class InteractionUI : NetworkBehaviour
         }
     }
 
-    private void updateButtonSprite( int buttonNr) {
-        buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr] ];
+    private void updateButtonSprite(int buttonNr) {
+        buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr]];
     }
 
-    public void audioButtonPressed() {
-        audioIsOn = !audioIsOn;
-        if (audioIsOn) {
-            audioButton.image.sprite = audioOnSprite;
-        } else {
-            audioButton.image.sprite = audioOffSprite;
+    // ============================================== PlayerState Input
+
+    public void greyItem(int nr) {
+        buttonStates[nr] = 2;
+        updateButtonSprite(nr);
+    }
+
+    public void ungreyItem(int nr) {
+        buttonStates[nr] = 0;
+        updateButtonSprite(nr);
+    }
+
+    public void setUnlockedSeeds(int amount) { // greying out items needs to be checked and done after
+        for ( int offset = 0; offset < 4; offset++ ) {
+            if (offset < amount) { // is unlocked
+                buttonStates[3 + offset] = 0;
+            } else {
+                buttonStates[3 + offset] = 3;
+            }
         }
     }
 
-    /*
-    private void tryWatering(UnityEngine.Object plantID) {
-        DateTime timestamp = DateTime.UtcNow;
+    // ============================================== Mouse Behaviour
 
-        try { // In case there is no entry for this plant yet
+    private void mouseInputHandle() {
 
-            if (DateTime.Compare(timestamp, WateringTimes[plantID]) < 0) {  // not enough time has passed = cannot be watered again
-
-                return;
-            } // no return -> watering triggers after try block
-        
-        } catch (ArgumentException) { // No entry yet
-            WateringTimes.Add(plantID, timestamp); // Just to have a new entry, time will be adjusted
+        if (Input.GetMouseButton(1) ) { // Right mouse button
+            deselectButtons();
+            currentlySelected = -1;
+            updateButtons();
+            Debug.Log("currentlySelected is " + currentlySelected);
         }
-
-
-        // TODO increase water status
-        WateringTimes[plantID] = timestamp.AddHours(24); // Next possible watering time
-        return;
     }
-    */
+    // Left mousebutton is handled by onCLicked events
+
 }
