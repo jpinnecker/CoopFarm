@@ -87,6 +87,20 @@ public class InteractionUI : NetworkBehaviour {
         sprites[6, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[6, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
 
+        for (int i = 0; i < 20; i++ ) {
+            for (int j = 0; j < 3; j++) {
+                if (seedSprites[i,j] == null) {
+                    Debug.Log("Empty seedSprite at " + i + "," + j);
+                }
+            }
+        }
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (sprites[i, j] == null) {
+                    Debug.Log("Empty sprite at " + i + "," + j);
+                }
+            }
+        }
     }
 
     // ====================================================== Clicked Events
@@ -212,7 +226,6 @@ public class InteractionUI : NetworkBehaviour {
                 buttonStates[3 + offset] = 3;
             }
         }
-
     }
 
     public void claimUI(PlayerState refObj) {
@@ -224,9 +237,9 @@ public class InteractionUI : NetworkBehaviour {
     // ============================================= irregular Buttons
 
     public void audioButtonPressed() {
-        AudioSource sm = SoundManager.self.gameObject.GetComponent(typeof(AudioSource)) as AudioSource;
-        sm.mute = !sm.mute;
-        if (! sm.mute) {
+        SoundManager sm = SoundManager.self;
+
+        if (sm.onOff() ) {
             audioButton.image.sprite = audioOnSprite;
         } else {
             audioButton.image.sprite = audioOffSprite;
