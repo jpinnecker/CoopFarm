@@ -293,7 +293,7 @@ public class PlayerState : NetworkBehaviour
                 }
                 Vector3 position = Input.mousePosition;
                 CmdPlantSeed(seedNr, position);
-                seedInventory[slotNr] -= 1;
+                seedInventory[seedNr] -= 1;
                 UpdateInteracUI();
                 return;
 
@@ -316,10 +316,14 @@ public class PlayerState : NetworkBehaviour
         interacUI.greyItem(2);
 
         interacUI.setUnlockedSeeds(seedInventory);
-        for (int i = 0; i < 4; i++) {
-            if (seedInventory[i] <= 0 ) {
+        for (int i = 0; i < seedInventory.Count; i++) {
+            if (seedInventory[i] == -1 ) {
                 interacUI.greyItem(i+3);
             }
+        }
+        for(int i = seedInventory.Count; i < 4; i++)
+        {
+            interacUI.greyItem(i + 3);
         }
     }
 
