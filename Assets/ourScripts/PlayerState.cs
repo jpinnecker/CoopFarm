@@ -32,6 +32,7 @@ public class PlayerState : NetworkBehaviour
 
     // Cached references:
     private PlantTypeMapping plantTypeMapping;
+    private GardenManager gardenManager;
 
     void Start()
     {
@@ -45,6 +46,24 @@ public class PlayerState : NetworkBehaviour
     public override void OnStartServer()
     {
         UnlockSeedSlot();
+        gardenManager = GameObject.FindObjectOfType<GardenManager>();
+        if(gardenManager == null)
+        {
+            Debug.LogError("Couldn't find GardenManager object.");
+        }
+        else
+        {
+            // TODO: Check when playerName is initialized.
+            var myGarden = gardenManager.LookupPlayerGarden(playerName);
+            if (myGarden == null)
+            {
+                myGarden = gardenManager.CreatePlayerGarden(playerName);
+
+            }
+            var myGardenId = myGarden.gameObject.GetComponent<NetworkIdentity>();
+            AssignGarden(myGardenId);
+            EnterGarden(myGardenId);
+        }
     }
     public override void OnStartClient()
     {
@@ -87,11 +106,16 @@ public class PlayerState : NetworkBehaviour
     {
         ownGarden = garden;
     }
-    [Command]
-    public void CmdEnterGarden(NetworkIdentity garden)
+    [Server]
+    public void EnterGarden(NetworkIdentity garden)
     {
         currentGarden = garden;
         // TODO: Place player game object and their camera object in this garden
+    }
+    [Command]
+    public void CmdEnterGarden(NetworkIdentity garden)
+    {
+        EnterGarden(garden);
     }
 
     private delegate void CooldownActionDelegate(PlantBehavior plant);
