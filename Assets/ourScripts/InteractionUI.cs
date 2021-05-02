@@ -224,9 +224,9 @@ public class InteractionUI : NetworkBehaviour {
     // ============================================= irregular Buttons
 
     public void audioButtonPressed() {
-        SoundManager sm = SoundManager.self;
-        sm.audioOn = !sm.audioOn;
-        if (sm.audioOn) {
+        AudioSource sm = SoundManager.self.gameObject.GetComponent(typeof(AudioSource)) as AudioSource;
+        sm.mute = !sm.mute;
+        if (! sm.mute) {
             audioButton.image.sprite = audioOnSprite;
         } else {
             audioButton.image.sprite = audioOffSprite;
