@@ -237,14 +237,20 @@ public class PlayerState : NetworkBehaviour
                 if (currentGarden.netId != ownGarden.netId) {
                     Debug.LogWarning("Tried to use shovel on foreign soil!");
                 } else {
+                    SoundManager sm = SoundManager.self;
+                    sm.playRandomAudio(0, 3); // Harke 1 - 4
                     Destroy(plant.gameObject);
                 }
                 break;
 
             case 1: //WATERING
-                if (currentGarden.netId == ownGarden.netId) {
+                //if (currentGarden.netId == ownGarden.netId) {
+                if ( false ) { // Showcase/Debug
                     Debug.LogWarning("Tried to wet their plants!");
                 } else {
+                    SoundManager sm = SoundManager.self;
+                    sm.playRandomAudio(8, 11); // Wasser 1 -4 
+
                     PerformCooldownAction(plant, wateringCooldowns, 0, CmdWaterPlant, ref wateringCounter);
                     UpdateInteracUI();
                 }
@@ -286,7 +292,9 @@ public class PlayerState : NetworkBehaviour
             case 4: //SEED 2
             case 5: //SEED 3
             case 6: //SEED 4
-                Debug.Log(slotNr + " and " + seedInventory.Count + " to " + (slotNr - 3) );
+                //Debug.Log(slotNr + " and " + seedInventory.Count + " to " + (slotNr - 3) );
+                SoundManager sm = SoundManager.self;
+                sm.playRandomAudio(4,7); // Saat 1 - 4
                 int seedNr = slotNr - 3;
                 if (seedInventory[seedNr] == -1) {
                     Debug.LogWarning("There are no seeds left");
