@@ -46,6 +46,10 @@ public class PlayerState : NetworkBehaviour
     public override void OnStartServer()
     {
         UnlockSeedSlot();
+        if (seedInventory[0] < 1) {
+            seedInventory[0] = 1;
+        }
+        
         gardenManager = GameObject.FindObjectOfType<GardenManager>();
         if(gardenManager == null)
         {
@@ -247,12 +251,8 @@ public class PlayerState : NetworkBehaviour
                 break;
 
             case 2: //MANURE
-                if (currentGarden.netId == ownGarden.netId) {
-                    Debug.LogWarning("Tried to dung their plants");
-                } else {
-                    PerformCooldownAction(plant, wateringCooldowns, 0, CmdFertilizePlant, ref wateringCounter);
-                    UpdateInteracUI();
-                }
+                PerformCooldownAction(plant, wateringCooldowns, 0, CmdFertilizePlant, ref wateringCounter);
+                UpdateInteracUI();
                 break;
 
             case 3: //SEED 1
@@ -285,15 +285,14 @@ public class PlayerState : NetworkBehaviour
             case 4: //SEED 2
             case 5: //SEED 3
             case 6: //SEED 4
-
+                Debug.Log(slotNr + " and " + seedInventory.Count + " to " + (slotNr - 3) );
                 int seedNr = slotNr - 3;
-                if (seedInventory[slotNr - 3] <= 0) {
+                if (seedInventory[seedNr] <= 0) {
                     Debug.LogWarning("There are no seeds left");
                     return;
                 }
-
                 Vector3 position = Input.mousePosition;
-                CmdPlantSeed(slotNr - 3, position);
+                CmdPlantSeed(seedNr, position);
                 seedInventory[slotNr] -= 1;
                 UpdateInteracUI();
                 return;
@@ -322,6 +321,10 @@ public class PlayerState : NetworkBehaviour
                 interacUI.greyItem(i+3);
             }
         }
+    }
+
+    public void bgClickDelegate() {
+        cmdBackgroundClick();
     }
 
     public void randomGarden() {

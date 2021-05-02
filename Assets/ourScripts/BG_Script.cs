@@ -9,6 +9,6 @@ public class BG_Script : NetworkBehaviour{
         //GameObject playerObj = NetworkClient.localPlayer.gameObject;
         //PlayerState plState = playerObj.GetComponent(typeof(PlayerState)) as PlayerState;
         PlayerState plState = NetworkClient.localPlayer.gameObject.GetComponent(typeof(PlayerState)) as PlayerState;
-        plState.cmdBackgroundClick();
+        plState.bgClickDelegate();
     }
 }
