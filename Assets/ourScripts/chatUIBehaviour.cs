@@ -11,10 +11,8 @@ public class chatUIBehaviour : NetworkBehaviour {
     [SerializeField] private TMP_InputField inputField = null;
 
     private void checkPlayerObj() {
-        playerObj = ClientScene.localPlayer.gameObject;
-        //Debug.Log(playerObj);
+        playerObj = NetworkClient.localPlayer.gameObject;
         playerChat = playerObj.GetComponent(typeof(ChatBehaviour)) as ChatBehaviour;
-        //Debug.Log(playerChat);
     }
 
     public void blockInput() {

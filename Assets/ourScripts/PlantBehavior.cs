@@ -54,4 +54,10 @@ public class PlantBehavior : NetworkBehaviour
         var body = transform.Find("body");
         body.GetComponent<Animator>().SetInteger("growthStage",newStage);
     }
+
+    public void isClicked() { // Initiates plant click handling in PlayerState
+        GameObject playerObj = NetworkClient.localPlayer.gameObject;
+        PlayerState plState = playerObj.GetComponent(typeof(PlayerState)) as PlayerState;
+        plState.cmdPlantInteraction(this);
+    }
 }

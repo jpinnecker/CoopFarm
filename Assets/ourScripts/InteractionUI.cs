@@ -5,8 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 
-public class InteractionUI : NetworkBehaviour
-{
+public class InteractionUI : NetworkBehaviour {
 
     // ============================================== Vars
 
@@ -18,6 +17,7 @@ public class InteractionUI : NetworkBehaviour
     private String spritePath = "UI/Reiter/";
     private bool audioIsOn = true;
 
+    private PlayerState locPlayer;
 
     public int currentlySelected = -1; // For easy mouse interactions
     public bool inOwnGarden = true;
@@ -169,7 +169,7 @@ public class InteractionUI : NetworkBehaviour
         buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr]];
     }
 
-    // ============================================== PlayerState Input
+    // ============================================== PlayerState Interaction
 
     public void greyItem(int nr) {
         buttonStates[nr] = 2;
@@ -188,6 +188,12 @@ public class InteractionUI : NetworkBehaviour
             } else {
                 buttonStates[3 + offset] = 3;
             }
+        }
+    }
+
+    public void claimUI(PlayerState refObj) {
+        if (locPlayer != null) {
+            locPlayer = refObj;
         }
     }
 

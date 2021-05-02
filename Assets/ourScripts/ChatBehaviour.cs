@@ -13,7 +13,7 @@ public class ChatBehaviour : NetworkBehaviour {
 
     private GameObject chatUI = null; // This is containing the elements and can be hidden.
     private TMP_Text chatText = null; // Here the received/sent messages are displayed
-    private TMP_InputField inputField = null; // Here new messages are typed
+    // private TMP_InputField inputField = null; // Here new messages are typed
 
     [SerializeField] private playerController plControl = null; // needed to block Input
 

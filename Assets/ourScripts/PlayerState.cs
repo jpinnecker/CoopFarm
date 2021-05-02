@@ -53,6 +53,13 @@ public class PlayerState : NetworkBehaviour
         seedInventory.Callback += OnInventoryUpdate;
 
         interacUI = GameObject.FindWithTag("InteracUI").GetComponent(typeof(InteractionUI)) as InteractionUI;
+        interacUI.claimUI(this);
+
+        /* TEST VARS
+        GameObject playerObj = NetworkClient.localPlayer.gameObject;
+        ownGarden = playerObj.GetComponent(typeof(NetworkIdentity)) as NetworkIdentity;
+        currentGarden = ownGarden;
+        */
     }
 
     private void OnWateringCooldownUpdate(SyncIDictionary<NetworkIdentity, double>.Operation op, NetworkIdentity key, double item)
@@ -238,7 +245,7 @@ public class PlayerState : NetworkBehaviour
     }
 
     [Command]
-    public void BackgroundClick() { // Used to plant new plants
+    public void cmdBackgroundClick() { // Used to plant new plants
         int slotNr = interacUI.currentlySelected;
         switch (slotNr) {
             case -1: // No tool selected
@@ -282,13 +289,12 @@ public class PlayerState : NetworkBehaviour
             interacUI.greyItem(1);
             interacUI.ungreyItem(0);
         }
-
-        // TODO Manure/Dung Setting
+        interacUI.greyItem(2);
 
         interacUI.setUnlockedSeeds(seedInventory.Count);
         for (int i = 0; i < 4; i++) {
             if (seedInventory[i] <= 0 ) {
-                interacUI.greyItem(i);
+                interacUI.greyItem(i+3);
             }
         }
     }
