@@ -23,7 +23,8 @@ public class InteractionUI : NetworkBehaviour {
     public bool inOwnGarden = true;
 
     private Sprite[,] sprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
-    private Sprite audioOnSprite, audioOffSprite;
+    private Sprite[,] seedSprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
+    private Sprite audioOnSprite, audioOffSprite, lockSprite;
 
     public Button[] buttons;
     public Button audioButton;
@@ -40,8 +41,10 @@ public class InteractionUI : NetworkBehaviour {
 
     public void loadSprites() {
         sprites = new Sprite[7, 4];
+        seedSprites = new Sprite[20, 3];
         audioOnSprite = Resources.Load<Sprite>("UI/Ton_an");
         audioOffSprite = Resources.Load<Sprite>("UI/Ton_aus");
+        lockSprite = Resources.Load<Sprite>(spritePath + "Reiter_locked");
 
         sprites[0, 0] = Resources.Load<Sprite>(spritePath + "Reiter_entfernen_normal");
         sprites[0, 1] = Resources.Load<Sprite>(spritePath + "Reiter_entfernen_ausgewählt");
@@ -53,12 +56,28 @@ public class InteractionUI : NetworkBehaviour {
         sprites[2, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
         sprites[2, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
 
+        String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",
+            "11-Kaktus", "12-Kobold","13-Lotus", "14-Löwenzahn", "15-Männchen", "16-Orchidee", "17-PinkerPuschel", "18-Radiesschen", "19-Stein", "20-Topfpflanze" };
+
+        seedSprites[0, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
+        seedSprites[0, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
+        seedSprites[0, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
+        seedSprites[1, 0] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_normal");
+        seedSprites[1, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
+        seedSprites[1, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
+
+        for (int i = 3; i < 20; i++) { // Numbers shifted by 1 - array
+            seedSprites[i, 0] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_normal");
+            seedSprites[i, 1] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_ausgewählt");
+            seedSprites[i, 2] = Resources.Load<Sprite>(spritePath + plantNames[i-3] + "Reiter_" + "_ausgegraut");
+        }
+
         sprites[3, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         sprites[3, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[3, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
-        sprites[4, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
-        sprites[4, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
-        sprites[4, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
+        sprites[4, 0] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_normal");
+        sprites[4, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
+        sprites[4, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
         sprites[5, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         sprites[5, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[5, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
@@ -166,7 +185,11 @@ public class InteractionUI : NetworkBehaviour {
     }
 
     private void updateButtonSprite(int buttonNr) {
-        buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr]];
+        if (buttonStates[buttonNr] == 3 ) {
+            buttons[buttonNr].image.sprite = lockSprite;
+        } else {
+            buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr]];
+        }
     }
 
     // ============================================== PlayerState Interaction
