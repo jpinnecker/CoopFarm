@@ -300,7 +300,15 @@ public class PlayerState : NetworkBehaviour
                     Debug.LogWarning("There are no seeds left");
                     return;
                 }
-                Vector3 position = Input.mousePosition;
+                // TODO: Fix transform to world pos
+                //Vector3 position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 25));
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Plane xy = new Plane(Vector3.forward, new Vector3(0, 0, 25));
+                float d;
+                xy.Raycast(ray, out d);
+                Vector3 position = ray.GetPoint(d);
+                position.x *= 0.25f; 
+                position.y *= 0.25f;
                 CmdPlantSeed(seedNr, position);
                 seedInventory[seedNr] = -1;
                 UpdateInteracUI();
