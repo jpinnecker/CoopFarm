@@ -31,6 +31,9 @@ public class InteractionUI : NetworkBehaviour {
 
     public void Start() {
         loadSprites();
+        int[] int_arr = { 0, 0, 0, 0, 3, 3, 3};
+        buttonStates = int_arr;
+        updateButtons();
     }
 
     public void Update() {
@@ -54,7 +57,7 @@ public class InteractionUI : NetworkBehaviour {
         sprites[1, 2] = Resources.Load<Sprite>(spritePath + "Reiter_ausgegraut");
         sprites[2, 0] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_normal");
         sprites[2, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
-        sprites[2, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
+        sprites[2, 2] = Resources.Load<Sprite>(spritePath + "Reiter_ausgegraut");
 
         String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",
             "11-Kaktus", "12-Kobold","13-Lotus", "14-Löwenzahn", "15-Männchen", "16-Orchidee", "17-PinkerPuschel", "18-Radiesschen", "19-Stein", "20-Topfpflanze" };
@@ -204,14 +207,22 @@ public class InteractionUI : NetworkBehaviour {
         updateButtonSprite(nr);
     }
 
-    public void setUnlockedSeeds(int amount) { // greying out items needs to be checked and done after
+    public void setUnlockedSeeds(SyncList<int> li ) { // greying out items needs to be checked and done after
+        int amount = li.Count;
         for ( int offset = 0; offset < 4; offset++ ) {
             if (offset < amount) { // is unlocked
+
+                int plantTypeNr = 0;
+                sprites[3 + offset, 0] = seedSprites[plantTypeNr, 0];
+                sprites[3 + offset, 1] = seedSprites[plantTypeNr, 1];
+                sprites[3 + offset, 2] = seedSprites[plantTypeNr, 2];
+
                 buttonStates[3 + offset] = 0;
             } else {
                 buttonStates[3 + offset] = 3;
             }
         }
+
     }
 
     public void claimUI(PlayerState refObj) {
