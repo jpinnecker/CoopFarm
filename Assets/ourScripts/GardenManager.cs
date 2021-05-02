@@ -32,6 +32,6 @@ public class GardenManager : MonoBehaviour
     private Vector3 GenerateGardenPosition()
     {
         // TODO: Implement spiral positioning from current child count.
-        return new Vector3(0, 0, 0);
+        return new Vector3(0, 0, 25);
     }
 }
