@@ -223,6 +223,7 @@ public class PlayerState : NetworkBehaviour
         PlantBehavior plantPrefab = plantTypeMapping.GetPlantTypePrefab(seedInventory[seedSlot]);
         var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
         NetworkServer.Spawn(plant.gameObject);
+        seedInventory[seedSlot] = -1;
     }
 
     [Command]
@@ -287,13 +288,13 @@ public class PlayerState : NetworkBehaviour
             case 6: //SEED 4
                 Debug.Log(slotNr + " and " + seedInventory.Count + " to " + (slotNr - 3) );
                 int seedNr = slotNr - 3;
-                if (seedInventory[seedNr] <= 0) {
+                if (seedInventory[seedNr] == -1) {
                     Debug.LogWarning("There are no seeds left");
                     return;
                 }
                 Vector3 position = Input.mousePosition;
                 CmdPlantSeed(seedNr, position);
-                seedInventory[seedNr] -= 1;
+                seedInventory[seedNr] = -1;
                 UpdateInteracUI();
                 return;
 
