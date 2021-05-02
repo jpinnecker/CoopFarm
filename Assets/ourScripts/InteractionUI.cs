@@ -162,15 +162,6 @@ public class InteractionUI : NetworkBehaviour {
         }
     }
 
-    public void audioButtonPressed() {
-        audioIsOn = !audioIsOn;
-        if (audioIsOn) {
-            audioButton.image.sprite = audioOnSprite;
-        } else {
-            audioButton.image.sprite = audioOffSprite;
-        }
-    }
-
     // ============================================== Utility
 
     private void deselectButtons() {
@@ -229,6 +220,22 @@ public class InteractionUI : NetworkBehaviour {
         if (locPlayer != null) {
             locPlayer = refObj;
         }
+    }
+
+    // ============================================= irregular Buttons
+
+    public void audioButtonPressed() {
+        audioIsOn = !audioIsOn;
+        if (audioIsOn) {
+            audioButton.image.sprite = audioOnSprite;
+        } else {
+            audioButton.image.sprite = audioOffSprite;
+        }
+    }
+
+
+    public void randomGardenPressed() {
+        locPlayer.randomGarden();
     }
 
     // ============================================== Mouse Behaviour

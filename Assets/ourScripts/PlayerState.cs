@@ -60,7 +60,6 @@ public class PlayerState : NetworkBehaviour
         ownGarden = playerObj.GetComponent(typeof(NetworkIdentity)) as NetworkIdentity;
         currentGarden = ownGarden;
         */
-        //UpdateInteracUI();
     }
 
     private void OnWateringCooldownUpdate(SyncIDictionary<NetworkIdentity, double>.Operation op, NetworkIdentity key, double item)
@@ -283,8 +282,8 @@ public class PlayerState : NetworkBehaviour
 
     public void UpdateInteracUI() {
 
-        //if (currentGarden.netId == ownGarden.netId) {
-        if (true) {
+        if (currentGarden.netId == ownGarden.netId) {
+        //if (true) { //for Tests
             interacUI.greyItem(0);
             interacUI.ungreyItem(1);
         } else {
@@ -299,5 +298,9 @@ public class PlayerState : NetworkBehaviour
                 interacUI.greyItem(i+3);
             }
         }
+    }
+
+    public void randomGarden() {
+        return; // TODO
     }
 }
