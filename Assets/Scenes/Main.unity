@@ -748,7 +748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82a0fef06ce84e5458f0370823db71d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gardenPrefab: {fileID: 0}
+  gardenPrefab: {fileID: 3075949930259125195, guid: 331be5a6b604792479df6a1e12ae40e3, type: 3}
 --- !u!4 &786170380
 Transform:
   m_ObjectHideFlags: 0
