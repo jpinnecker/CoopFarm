@@ -54,8 +54,8 @@ public class InteractionUI : NetworkBehaviour {
         sprites[1, 0] = Resources.Load<Sprite>(spritePath + "Reiter_Gießkanne_normal");
         sprites[1, 1] = Resources.Load<Sprite>(spritePath + "Reiter_Gießkanne_ausgewählt");
         sprites[1, 2] = Resources.Load<Sprite>(spritePath + "Reiter_ausgegraut");
-        sprites[2, 0] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_normal");
-        sprites[2, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
+        sprites[2, 0] = Resources.Load<Sprite>(spritePath + "Düngen_Reiter_normal");
+        sprites[2, 1] = Resources.Load<Sprite>(spritePath + "Düngen_Reiter_ausgewählt");
         sprites[2, 2] = Resources.Load<Sprite>(spritePath + "Reiter_ausgegraut");
 
         String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",

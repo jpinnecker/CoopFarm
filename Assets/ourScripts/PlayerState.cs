@@ -311,7 +311,7 @@ public class PlayerState : NetworkBehaviour
         GardenBehaviour newGarden = GardenBehaviour.gardenList[gardenNr];
         NetworkIdentity netwID = newGarden.gameObject.GetComponent(typeof(NetworkIdentity)) as NetworkIdentity;
         Camera cam = Camera.main;
-        cam.transform.position = newGarden.transform.position + new Vector3(0, 0, -15);
+        cam.transform.position = newGarden.transform.position + new Vector3(0, 0, -17);
 
         GameObject playerObj = NetworkClient.localPlayer.gameObject;
         playerObj.transform.position = newGarden.transform.position;

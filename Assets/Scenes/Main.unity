@@ -140,11 +140,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22144821765561445, guid: fc13e71ccedccb14f835e6e72deda64e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.7
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 22144821765561445, guid: fc13e71ccedccb14f835e6e72deda64e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.8
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 22144821765561445, guid: fc13e71ccedccb14f835e6e72deda64e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -304,11 +304,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3779263917881958307, guid: 7a8908d5da7454e43aacacc61259f142, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.9
+      value: 5.24
       objectReference: {fileID: 0}
     - target: {fileID: 3779263917881958307, guid: 7a8908d5da7454e43aacacc61259f142, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -3.35
       objectReference: {fileID: 0}
     - target: {fileID: 3779263917881958307, guid: 7a8908d5da7454e43aacacc61259f142, type: 3}
       propertyPath: m_LocalPosition.z
@@ -429,7 +429,7 @@ GameObject:
   - component: {fileID: 694800944}
   - component: {fileID: 694800946}
   m_Layer: 0
-  m_Name: Pic
+  m_Name: Garten
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -444,7 +444,7 @@ Transform:
   m_GameObject: {fileID: 694800940}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.35, y: 2.15, z: 1}
+  m_LocalScale: {x: 4.2, y: 4.2, z: 1}
   m_Children: []
   m_Father: {fileID: 1709281429}
   m_RootOrder: 0
@@ -489,7 +489,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5ba02857951ac674792977938bb11bf8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 02758a2422e6f7a44b3ebe16d0cb624f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -546,7 +546,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 38.399998, y: 21.599998}
+    oldSize: {x: 17.2, y: 8.8}
     newSize: {x: 38.399998, y: 21.599998}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -969,11 +969,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 84358355203381052, guid: 27fd17682bed3844f877dd21a59e483c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.73
+      value: -0.09
       objectReference: {fileID: 0}
     - target: {fileID: 84358355203381052, guid: 27fd17682bed3844f877dd21a59e483c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.76
+      value: 1.45
       objectReference: {fileID: 0}
     - target: {fileID: 84358355203381052, guid: 27fd17682bed3844f877dd21a59e483c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1524,7 +1524,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1897504366}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -15}
+  m_LocalPosition: {x: 0, y: 0, z: -17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1547833484}
@@ -1859,7 +1859,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c0bd151890fda654c8a36549b7e9e4a7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 31ce9fe494d74474090fcfb755a9beee, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
