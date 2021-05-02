@@ -15,7 +15,6 @@ public class InteractionUI : NetworkBehaviour {
     private int[] buttonStates = new int[7];
 
     private String spritePath = "UI/Reiter/";
-    private bool audioIsOn = true;
 
     private PlayerState locPlayer;
 
@@ -225,8 +224,9 @@ public class InteractionUI : NetworkBehaviour {
     // ============================================= irregular Buttons
 
     public void audioButtonPressed() {
-        audioIsOn = !audioIsOn;
-        if (audioIsOn) {
+        SoundManager sm = SoundManager.self;
+        sm.audioOn = !sm.audioOn;
+        if (sm.audioOn) {
             audioButton.image.sprite = audioOnSprite;
         } else {
             audioButton.image.sprite = audioOffSprite;

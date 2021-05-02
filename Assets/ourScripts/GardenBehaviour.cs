@@ -4,9 +4,9 @@ using UnityEngine;
 using Mirror;
 using System;
 
-public class GardenBehaviour : MonoBehaviour
+public class GardenBehaviour : NetworkBehaviour
 {
-    readonly public static SyncList<GardenBehaviour> gardenList = new SyncList<GardenBehaviour>();
+    static List<GardenBehaviour> gardenList = new List<GardenBehaviour>();
     private int gardenNr = -1;
 
     private static int x_core_dist = 100;
