@@ -446,9 +446,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  usernameInput: {fileID: 0}
-  passwordInput: {fileID: 0}
-  serverAdressInput: {fileID: 0}
+  usernameInput: {fileID: 399986509}
+  passwordInput: {fileID: 1576686681}
+  serverAdressInput: {fileID: 952878162}
 --- !u!114 &214890678
 MonoBehaviour:
   m_ObjectHideFlags: 0
