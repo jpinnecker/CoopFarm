@@ -11,8 +11,8 @@ public class GardenManager : MonoBehaviour
 
     private static int gardenCounter = 0;
     private static int curLayerSize = 1;
-    private static int garden_width = 5;
-    private static int garden_height = 3;
+    private static int garden_width = 5; // TODO adjust
+    private static int garden_height = 3; // TODO adjust
 
     public GardenData LookupPlayerGarden(string playerName)
     {
