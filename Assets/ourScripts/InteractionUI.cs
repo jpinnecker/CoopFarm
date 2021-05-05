@@ -24,6 +24,8 @@ public class InteractionUI : NetworkBehaviour {
     private Sprite[,] sprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
     private Sprite[,] seedSprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
     private Sprite audioOnSprite, audioOffSprite, lockSprite;
+    private String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",
+            "11-Kaktus", "12-Kobold","13-Lotus", "14-Löwenzahn", "15-Männchen", "16-Orchidee", "17-PinkerPuschel", "18-Radiesschen", "19-Stein", "20-Topfpflanze" };
 
     public Button[] buttons;
     public Button audioButton;
@@ -58,9 +60,6 @@ public class InteractionUI : NetworkBehaviour {
         sprites[2, 1] = Resources.Load<Sprite>(spritePath + "Düngen_Reiter_ausgewählt");
         sprites[2, 2] = Resources.Load<Sprite>(spritePath + "Reiter_ausgegraut");
 
-        String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",
-            "11-Kaktus", "12-Kobold","13-Lotus", "14-Löwenzahn", "15-Männchen", "16-Orchidee", "17-PinkerPuschel", "18-Radiesschen", "19-Stein", "20-Topfpflanze" };
-
         seedSprites[0, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         seedSprites[0, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         seedSprites[0, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
@@ -77,9 +76,9 @@ public class InteractionUI : NetworkBehaviour {
         sprites[3, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         sprites[3, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[3, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
-        sprites[4, 0] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_normal");
-        sprites[4, 1] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgewählt");
-        sprites[4, 2] = Resources.Load<Sprite>(spritePath + "Reiter_2-Haufen_ausgegraut");
+        sprites[4, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
+        sprites[4, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
+        sprites[4, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
         sprites[5, 0] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_normal");
         sprites[5, 1] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgewählt");
         sprites[5, 2] = Resources.Load<Sprite>(spritePath + "Reiter_1-Kohl_ausgegraut");
@@ -193,6 +192,7 @@ public class InteractionUI : NetworkBehaviour {
 
     private void updateButtonSprite(int buttonNr) {
         if (buttonStates[buttonNr] == 3 ) {
+            Debug.Log("Display locked at " + buttonNr);
             buttons[buttonNr].image.sprite = lockSprite;
         } else {
             buttons[buttonNr].image.sprite = sprites[buttonNr, buttonStates[buttonNr]];
@@ -225,6 +225,18 @@ public class InteractionUI : NetworkBehaviour {
             } else {
                 buttonStates[3 + offset] = 3;
             }
+        }
+    }
+
+    public void adjustSeedIcons(SyncList<int> seedInventory) {
+        for (int offset = 0; offset < seedInventory.Count; offset++) {
+            int plantTypeNr = 0;
+            sprites[3 + offset, 0] = seedSprites[plantTypeNr, 0];
+            sprites[3 + offset, 1] = seedSprites[plantTypeNr, 1];
+            sprites[3 + offset, 2] = seedSprites[plantTypeNr, 2];
+        }
+        for (int i = 0; i < 7; i++) {
+            Debug.Log("buttonStates nr " + i + " is " + buttonStates[i] + " lockedSprite is " + lockSprite );
         }
     }
 

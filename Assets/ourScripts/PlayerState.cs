@@ -339,6 +339,7 @@ public class PlayerState : NetworkBehaviour
         interacUI.greyItem(2);
 
         interacUI.setUnlockedSeeds(seedInventory);
+        interacUI.adjustSeedIcons(seedInventory);
         for (int i = 0; i < seedInventory.Count; i++) {
             if (seedInventory[i] == -1 ) {
                 interacUI.greyItem(i+3);
