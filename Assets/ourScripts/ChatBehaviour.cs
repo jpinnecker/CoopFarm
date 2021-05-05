@@ -59,7 +59,7 @@ public class ChatBehaviour : NetworkBehaviour {
     //Send own message
     [Command] // Client calls, server runs
     private void CmdSendMessage(string message) {
-        RpcHandleMessage($"[{connectionToClient.connectionId}]: {message}");
+        RpcHandleMessage($"[{(connectionToClient?.identity?.GetComponent<PlayerState>()?.GetName()) ?? "<Unnamed>"}]: {message}");
     }
 
     //Receive message

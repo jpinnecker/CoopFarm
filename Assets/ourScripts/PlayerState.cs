@@ -5,6 +5,7 @@ using Mirror;
 
 public class PlayerState : NetworkBehaviour
 {
+    [SerializeField]
     [SyncVar]
     string playerName;
     [SyncVar]
@@ -103,6 +104,11 @@ public class PlayerState : NetworkBehaviour
     public void CmdSetName(string name) // May become a normal [Server] method
     {
         this.name = name;
+    }
+
+    public string GetName()
+    {
+        return playerName;
     }
 
     [Server]
