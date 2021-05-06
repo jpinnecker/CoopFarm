@@ -329,20 +329,17 @@ public class PlayerState : NetworkBehaviour
     public void UpdateInteracUI() {
 
         if (currentGarden.netId == ownGarden.netId) {
-        //if (true) { //for Tests
             interacUI.greyItem(0);
             interacUI.ungreyItem(1);
         } else {
             interacUI.greyItem(1);
             interacUI.ungreyItem(0);
         }
-        interacUI.greyItem(2);
 
         interacUI.setUnlockedSeeds(seedInventory);
-        interacUI.adjustSeedIcons(seedInventory);
         for (int i = 0; i < seedInventory.Count; i++) {
             if (seedInventory[i] == -1 ) {
-                interacUI.greyItem(i+3);
+                interacUI.lockItem(i+3);
             }
         }
         for(int i = seedInventory.Count; i < 4; i++)

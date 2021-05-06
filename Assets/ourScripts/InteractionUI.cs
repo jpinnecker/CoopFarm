@@ -21,7 +21,7 @@ public class InteractionUI : NetworkBehaviour {
     public int currentlySelected = -1; // For easy mouse interactions
     public bool inOwnGarden = true;
 
-    private Sprite[,] sprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
+    private Sprite[,] sprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 locked, greyed out
     private Sprite[,] seedSprites; // First index is Button Slot, second index is: 0 available, 1 selected, 2 greyed out, 3 locked 
     private Sprite audioOnSprite, audioOffSprite, lockSprite;
     private String[] plantNames = { "4-Apfel", "5-Pilz", "6-Kartoffel", "7-Busch", "8-Baum", "9-Birne", "10-Blätter",
@@ -201,7 +201,13 @@ public class InteractionUI : NetworkBehaviour {
 
     // ============================================== PlayerState Interaction
 
+
     public void greyItem(int nr) {
+        buttonStates[nr] = 3;
+        updateButtonSprite(nr);
+    }
+
+    public void lockItem(int nr) {
         buttonStates[nr] = 2;
         updateButtonSprite(nr);
     }
@@ -225,18 +231,6 @@ public class InteractionUI : NetworkBehaviour {
             } else {
                 buttonStates[3 + offset] = 3;
             }
-        }
-    }
-
-    public void adjustSeedIcons(SyncList<int> seedInventory) {
-        for (int offset = 0; offset < seedInventory.Count; offset++) {
-            int plantTypeNr = 0;
-            sprites[3 + offset, 0] = seedSprites[plantTypeNr, 0];
-            sprites[3 + offset, 1] = seedSprites[plantTypeNr, 1];
-            sprites[3 + offset, 2] = seedSprites[plantTypeNr, 2];
-        }
-        for (int i = 0; i < 7; i++) {
-            Debug.Log("buttonStates nr " + i + " is " + buttonStates[i] + " lockedSprite is " + lockSprite );
         }
     }
 
