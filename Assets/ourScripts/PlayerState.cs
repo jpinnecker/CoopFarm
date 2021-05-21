@@ -230,6 +230,7 @@ public class PlayerState : NetworkBehaviour
         var plant = Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
         NetworkServer.Spawn(plant.gameObject);
         seedInventory[seedSlot] = -1;
+        UpdateInteracUI();
     }
 
     [Command]
@@ -252,7 +253,7 @@ public class PlayerState : NetworkBehaviour
             case 1: //WATERING
                 //if (currentGarden.netId == ownGarden.netId) {
                 if ( false ) { // Showcase/Debug
-                    Debug.LogWarning("Tried to wet their plants!");
+                    // Debug.LogWarning("Tried to wet their plants!");
                 } else {
                     SoundManager sm = SoundManager.self;
                     sm.playRandomAudio(8, 11); // Wasser 1 -4 
