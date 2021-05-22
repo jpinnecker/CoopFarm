@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using System.Text;
 
 public class PlayerState : NetworkBehaviour
 {
@@ -370,4 +371,29 @@ public class PlayerState : NetworkBehaviour
         playerObj.transform.position = newGarden.transform.position;
 
     }
+
+    [Command]
+    public string CMDtryLogin(string username) {
+
+        string nonce = "Nonceplaceholder";
+        string salt = "pepper"; //getSalt(username); ?
+
+        return salt + nonce; // How to save only on Server? Save on Server Object? Also how to save usernamePasswortHash
+    }
+
+    [Command]
+    public bool CMDAnswerChallenge(string usernameInput, byte[] challengeAnswer) {
+
+        byte[] theThing = getPasswordhashEntry(usernameInput);
+        byte[] challengeBytes = ASCIIEncoding.ASCII.GetBytes(getChallengeFor(usernameInput));
+        byte[] challengeSolution = ConnectScript.combineByteArrays(theThing, challengeBytes);
+
+        if (challengeAnswer.Length != challengeSolution.Length) {
+            return false;
+        }
+        for (int i = 0; i < challengeAnswer.Length; i++) {
+
+        }
+    }
+
 }

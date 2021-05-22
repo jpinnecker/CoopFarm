@@ -16,7 +16,7 @@ public class InteractionUI : NetworkBehaviour {
 
     private String spritePath = "UI/Reiter/";
 
-    private PlayerState locPlayer;
+    public PlayerState locPlayer;
 
     public int currentlySelected = -1; // For easy mouse interactions
     public bool inOwnGarden = true;

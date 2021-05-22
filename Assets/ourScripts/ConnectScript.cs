@@ -12,6 +12,7 @@ public class ConnectScript : NetworkBehaviour {
     [SerializeField] private TMP_InputField passwordInput;
 
     [SerializeField] private NetworkManager netMan;
+    private GameObject interactionUI;
     private string name;
 
     public void OnConnectClick() {
@@ -19,11 +20,12 @@ public class ConnectScript : NetworkBehaviour {
         // Read in Info
         string username = usernameInput.text;
         Debug.Log("Connect was pressed, username is " + username);
+
+        interactionUI = GameObject.FindGameObjectsWithTag("InteracUI")[0]; // only one exists
         bool isSuccessfull = JoinGame();
 
         // Adjust interface, Server handles Character activation
         if (isSuccessfull) {
-            GameObject interactionUI = GameObject.FindGameObjectsWithTag("InteracUI")[0]; // only one exists
             interactionUI.SetActive(true);
             gameObject.SetActive(false);
             Debug.Log("Joined?");
@@ -32,17 +34,20 @@ public class ConnectScript : NetworkBehaviour {
     public bool JoinGame() {
         // PlayerPref save mechanic here TODO
         string secret = "PlsNoLook"; //placeholder
+        string username = "MustermanUser";
+        // string secret = PlayerPrefs.GetString("secret");
+        // string username = PlayerPrefs.GetString("username"); // save further up?
 
-        PlayerState plState = NetworkManager.client.connection.playerControllers; //? get isLocal? easier function?
-
+        PlayerState plState = ((InteractionUI) interactionUI.GetComponent(typeof (InteractionUI))).locPlayer;
 
         // Challenge is solved here 
-        string challenge = plState.CMDtryLogin(username); // salt is already in front of challenge?
+        string challenge = plState.CMDtryLogin(username); 
+        byte[] salt = plState.CMDgetSalt(username);
         challenge = secret + challenge;
-        challenge = cryptoHash(challenge);
+        byte[] challengeAnswer = cryptoHash(challenge);
 
         // Check for success
-        bool isSuccessful = plState.CMDAnswerChallenge(usernameInput, challenge);
+        bool isSuccessful = plState.CMDAnswerChallenge(username, challengeAnswer);
         return isSuccessful;
     }
 
@@ -56,5 +61,12 @@ public class ConnectScript : NetworkBehaviour {
         byteString = new MD5CryptoServiceProvider().ComputeHash(byteString);
 
         return byteString;
+    }
+
+    public static byte[] combineByteArrays(byte[] a, byte[] b) {
+        byte[] c = new byte[a.Length+b.Length];
+        System.Buffer.BlockCopy(a, 0, c, 0, a.Length);
+        System.Buffer.BlockCopy(b, 0, c, a.Length, a.Length + b.Length);
+        return c;
     }
 }
