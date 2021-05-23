@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using System.Text;
+using System.Security.Cryptography;
 
 public class PlayerState : NetworkBehaviour
 {
@@ -372,6 +373,12 @@ public class PlayerState : NetworkBehaviour
 
     }
 
+    //TODO make server vars:
+    private Dictionary<string, string> passwordHashDictionary = new Dictionary<string, string>();
+    private Dictionary<string, string> saltHashDictionary = new Dictionary<string, string>();
+    private Dictionary<string, string> NonceHashDictionary = new Dictionary<string, string>();
+
+
     [Command]
     public string CMDtryLogin(string username) {
 
@@ -381,19 +388,49 @@ public class PlayerState : NetworkBehaviour
         return salt + nonce; // How to save only on Server? Save on Server Object? Also how to save usernamePasswortHash
     }
 
-    [Command]
-    public bool CMDAnswerChallenge(string usernameInput, byte[] challengeAnswer) {
+    public byte[] CMDgetSalt(string username) { //TODO: implement
+        //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
+        return new byte[] {254, 16, 42 };
+    }
 
-        byte[] theThing = getPasswordhashEntry(usernameInput);
-        byte[] challengeBytes = ASCIIEncoding.ASCII.GetBytes(getChallengeFor(usernameInput));
+    [Command]
+    public bool CMDAnswerChallenge(string username, byte[] challengeAnswer) {
+        // special thanks to http://csharphelper.com/blog/2014/08/use-a-cryptographic-random-number-generator-in-c/
+
+        byte[] theThing = getPasswordhashEntry(username);
+        byte[] challengeBytes = getChallengeFor(username);
         byte[] challengeSolution = ConnectScript.combineByteArrays(theThing, challengeBytes);
 
+        // Compare challenge Answer with solution
         if (challengeAnswer.Length != challengeSolution.Length) {
             return false;
         }
         for (int i = 0; i < challengeAnswer.Length; i++) {
-
+            if (challengeAnswer[i] != challengeSolution[i]) {
+                return false;
+            }
         }
+
+        // Accept Login and register as proper user:
+
+
+        return true;
     }
 
+    [Server]
+    private byte[] getChallengeFor(string username) {
+        // The random number provider.
+        RNGCryptoServiceProvider Rand = new RNGCryptoServiceProvider();
+
+        byte[] four_bytes = new byte[4];
+        Rand.GetBytes( four_bytes );
+        
+        return four_bytes;
+    }
+
+    [Server]
+    private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
+        byte[] returnEntry = new byte[] { 42, 16, 254 };
+        return returnEntry;
+    }
 }

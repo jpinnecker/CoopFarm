@@ -13,7 +13,7 @@ public class ConnectScript : NetworkBehaviour {
 
     [SerializeField] private NetworkManager netMan;
     private GameObject interactionUI;
-    private string name;
+    private string username;
 
     public void OnConnectClick() {
 
