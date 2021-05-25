@@ -14,6 +14,11 @@ public class GardenManager : MonoBehaviour
     private static int garden_width = 5; // TODO adjust
     private static int garden_height = 3; // TODO adjust
 
+    /*
+    private void Start() {
+        gameObject.SetActive(false); // Enabled after Login
+    } */
+
     public GardenData LookupPlayerGarden(string playerName)
     {
         return transform.Cast<Transform>().FirstOrDefault(c => c.gameObject.GetComponent<GardenData>().playerName == playerName)?.gameObject?.GetComponent<GardenData>();

@@ -28,6 +28,7 @@ public class ChatBehaviour : NetworkBehaviour {
         chatUI.SetActive(true);
 
         OnMessage += HandleNewMessage;
+        gameObject.SetActive(false); // Enabled after Login
     }
 
     // unregister from chat feed

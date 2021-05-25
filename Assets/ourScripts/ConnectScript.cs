@@ -13,6 +13,7 @@ public class ConnectScript : NetworkBehaviour {
 
     [SerializeField] private NetworkManager netMan;
     private GameObject interactionUI;
+    private PlayerState plState;
     private string username;
 
     public void OnConnectClick() {
@@ -22,43 +23,53 @@ public class ConnectScript : NetworkBehaviour {
         Debug.Log("Connect was pressed, username is " + username);
 
         interactionUI = GameObject.FindGameObjectsWithTag("InteracUI")[0]; // only one exists
-        bool isSuccessfull = JoinGame();
+        JoinGame();
 
-        // Adjust interface, Server handles Character activation
-        if (isSuccessfull) {
-            interactionUI.SetActive(true);
-            gameObject.SetActive(false);
-            Debug.Log("Joined?");
-        }
     }
-    public bool JoinGame() {
+    public void JoinGame() {
         // PlayerPref save mechanic here TODO
-        string secret = "PlsNoLook"; //placeholder
         string username = "MustermanUser";
-        // string secret = PlayerPrefs.GetString("secret");
         // string username = PlayerPrefs.GetString("username"); // save further up?
 
-        PlayerState plState = ((InteractionUI) interactionUI.GetComponent(typeof (InteractionUI))).locPlayer;
+        plState = ((InteractionUI) interactionUI.GetComponent(typeof (InteractionUI))).locPlayer;
 
-        // Challenge is solved here 
-        string challenge = plState.CMDtryLogin(username); 
-        byte[] salt = plState.CMDgetSalt(username);
-        challenge = secret + challenge;
-        byte[] challengeAnswer = cryptoHash(challenge);
+        // Challenge is requested here 
+        Debug.Log("JoinGame done");
+        plState.CMDtryLogin(username, this); 
+    }
+
+    [ClientCallback] //proper method indicator?
+    public void receiveChallenge(byte[] nonce, byte[] salt) {
+        //PlayerPref mechanic here TODO
+        string secret = PlayerPrefs.GetString("secret");
+        secret = "plsNoTell"; //TEST CODE PLS DELETE
+        byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(secret);
+        byte[] challengeAnswer = cryptoHash(combineByteArrays(secretBytes, salt));
+        challengeAnswer = cryptoHash(combineByteArrays(challengeAnswer, nonce));
 
         // Check for success
-        bool isSuccessful = plState.CMDAnswerChallenge(username, challengeAnswer);
-        return isSuccessful;
+        Debug.Log("receiveChallenge done");
+        plState.CMDAnswerChallenge(username, challengeAnswer, this);
     }
+
+    [ClientCallback] //proper method indicator?
+    public void ChallengeAccepted() {
+        interactionUI.SetActive(true);
+        //TODO chatUI SetActive(true);
+        //gardenManager SetActive(true);
+        gameObject.SetActive(false);
+        Debug.Log("finished joining?");
+    }
+
+    //CLientcallback newUserData ? 
 
 
     // Based on:
     // https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/compute-hash-values
-    public static byte[] cryptoHash(string input) {
+    public static byte[] cryptoHash(byte[] input) {
 
         // Generate Hash
-        byte[] byteString = ASCIIEncoding.ASCII.GetBytes(input);
-        byteString = new MD5CryptoServiceProvider().ComputeHash(byteString);
+        byte[] byteString = new MD5CryptoServiceProvider().ComputeHash(input);
 
         return byteString;
     }

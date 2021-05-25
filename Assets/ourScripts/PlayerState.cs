@@ -54,24 +54,27 @@ public class PlayerState : NetworkBehaviour
         }
         
         gardenManager = GameObject.FindObjectOfType<GardenManager>();
-        if(gardenManager == null)
-        {
+        if(gardenManager == null) {
             Debug.LogError("Couldn't find GardenManager object.");
-        }
-        else
-        {
-            // TODO: Check when playerName is initialized.
-            var myGarden = gardenManager.LookupPlayerGarden(playerName);
-            if (myGarden == null)
-            {
-                myGarden = gardenManager.CreatePlayerGarden(playerName);
-
-            }
-            var myGardenId = myGarden.gameObject.GetComponent<NetworkIdentity>();
-            AssignGarden(myGardenId);
-            EnterGarden(myGardenId);
+        } else {
+            gardenManager.gameObject.SetActive(false); // Enabled after Login
         }
     }
+
+    [Server]
+    public void findGarden() {
+        // TODO: Check when playerName is initialized.
+
+        var myGarden = gardenManager.LookupPlayerGarden(playerName);
+        if (myGarden == null) {
+            myGarden = gardenManager.CreatePlayerGarden(playerName);
+
+        }
+        var myGardenId = myGarden.gameObject.GetComponent<NetworkIdentity>();
+        AssignGarden(myGardenId);
+        EnterGarden(myGardenId);
+    }
+
     public override void OnStartClient()
     {
         wateringCooldowns.Callback += OnWateringCooldownUpdate;
@@ -80,6 +83,7 @@ public class PlayerState : NetworkBehaviour
 
         interacUI = GameObject.FindWithTag("InteracUI").GetComponent(typeof(InteractionUI)) as InteractionUI;
         interacUI.claimUI(this);
+        interacUI.gameObject.SetActive(false); // Enabled after Login
 
         /* TEST VARS
         GameObject playerObj = NetworkClient.localPlayer.gameObject;
@@ -380,21 +384,18 @@ public class PlayerState : NetworkBehaviour
 
 
     [Command]
-    public string CMDtryLogin(string username) {
+    public void CMDtryLogin(string username, ConnectScript loginScript) {
 
-        string nonce = "Nonceplaceholder";
-        string salt = "pepper"; //getSalt(username); ?
-
-        return salt + nonce; // How to save only on Server? Save on Server Object? Also how to save usernamePasswortHash
+        byte[] nonce = getChallengeFor(username); //also links the challenge to the username so it can be solved
+        byte[] salt = getSalt(username); //getSalt(username); ?
+        Debug.Log("CMDtryLogin done");
+        loginScript.receiveChallenge(nonce, salt);
     }
 
-    public byte[] CMDgetSalt(string username) { //TODO: implement
-        //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
-        return new byte[] {254, 16, 42 };
-    }
+    // TODO: make CMD getSalt & TrylogIn use a ClinetCall to change data there, let them use tpye void to avoid weaver error
 
     [Command]
-    public bool CMDAnswerChallenge(string username, byte[] challengeAnswer) {
+    public void CMDAnswerChallenge(string username, byte[] challengeAnswer, ConnectScript loginScript) {
         // special thanks to http://csharphelper.com/blog/2014/08/use-a-cryptographic-random-number-generator-in-c/
 
         byte[] theThing = getPasswordhashEntry(username);
@@ -403,18 +404,19 @@ public class PlayerState : NetworkBehaviour
 
         // Compare challenge Answer with solution
         if (challengeAnswer.Length != challengeSolution.Length) {
-            return false;
+            return;
         }
         for (int i = 0; i < challengeAnswer.Length; i++) {
             if (challengeAnswer[i] != challengeSolution[i]) {
-                return false;
+                return;
             }
         }
 
         // Accept Login and register as proper user:
+        Debug.Log("CMDAnswerChallenge done");
+        loginScript.ChallengeAccepted();
 
-
-        return true;
+        this.gameObject.SetActive(true); //other things to do on successfull login here
     }
 
     [Server]
@@ -432,5 +434,10 @@ public class PlayerState : NetworkBehaviour
     private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
         byte[] returnEntry = new byte[] { 42, 16, 254 };
         return returnEntry;
+    }
+
+    private byte[] getSalt(string username) { //TODO: implement
+        //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
+        return new byte[] { 254, 16, 42 };
     }
 }
