@@ -25,6 +25,7 @@ public class PlayerState : NetworkBehaviour
     double fertilizingCooldown = 0;
     
     private InteractionUI interacUI;
+    private ChatBehaviour chatUI;
 
     [SerializeField]
     double fertilizingCooldownDuration = 60;
@@ -58,6 +59,12 @@ public class PlayerState : NetworkBehaviour
             Debug.LogError("Couldn't find GardenManager object.");
         } else {
             gardenManager.gameObject.SetActive(false); // Enabled after Login
+        }
+        chatUI = GameObject.FindObjectOfType<ChatBehaviour>();
+        if (chatUI == null) {
+            Debug.LogError("Couldn't find chatUI object.");
+        } else {
+            chatUI.gameObject.SetActive(false); // Enabled after Login
         }
     }
 
@@ -417,6 +424,8 @@ public class PlayerState : NetworkBehaviour
         loginScript.ChallengeAccepted();
 
         this.gameObject.SetActive(true); //other things to do on successfull login here
+        interacUI.gameObject.SetActive(true);
+        chatUI.gameObject.SetActive(true);
     }
 
     [Server]
