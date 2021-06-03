@@ -235,7 +235,7 @@ public class InteractionUI : NetworkBehaviour {
     }
 
     public void claimUI(PlayerState refObj) {
-        if (locPlayer != null) {
+        if (locPlayer == null) {
             locPlayer = refObj;
         }
     }

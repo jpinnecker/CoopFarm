@@ -12,17 +12,20 @@ public class ConnectScript : NetworkBehaviour {
     [SerializeField] private TMP_InputField passwordInput;
 
     [SerializeField] private NetworkManager netMan;
-    private GameObject interactionUI;
+    private InteractionUI interactionUI;
     private PlayerState plState;
     private string username;
+
+    private void Start() {
+        interactionUI = GameObject.FindObjectOfType<InteractionUI>();
+        //interactionUI.gameObject.SetActive(false); // will be done by PlayerState
+    }
 
     public void OnConnectClick() {
 
         // Read in Info
         string username = usernameInput.text;
         Debug.Log("Connect was pressed, username is " + username);
-
-        interactionUI = GameObject.FindGameObjectsWithTag("InteracUI")[0]; // only one exists
         JoinGame();
 
     }
@@ -31,18 +34,19 @@ public class ConnectScript : NetworkBehaviour {
         string username = "MustermanUser";
         // string username = PlayerPrefs.GetString("username"); // save further up?
 
-        plState = ((InteractionUI) interactionUI.GetComponent(typeof (InteractionUI))).locPlayer;
+        plState = interactionUI.locPlayer;
 
         // Challenge is requested here 
         Debug.Log("JoinGame done");
         plState.CMDtryLogin(username, this); 
     }
 
-    [ClientCallback] //proper method indicator?
-    public void receiveChallenge(byte[] nonce, byte[] salt) {
+    [TargetRpc] //target is used by mirror for identification of the function call target.
+    public void receiveChallenge(NetworkConnection target, byte[] nonce, byte[] salt) {
+        Debug.Log("receiveChallenge begins");
         //PlayerPref mechanic here TODO
         string secret = PlayerPrefs.GetString("secret");
-        secret = "plsNoTell"; //TEST CODE PLS DELETE
+        secret = "hoi!"; 
         byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(secret);
         byte[] challengeAnswer = cryptoHash(combineByteArrays(secretBytes, salt));
         challengeAnswer = cryptoHash(combineByteArrays(challengeAnswer, nonce));
@@ -52,11 +56,11 @@ public class ConnectScript : NetworkBehaviour {
         plState.CMDAnswerChallenge(username, challengeAnswer, this);
     }
 
-    [ClientCallback] //proper method indicator?
-    public void ChallengeAccepted() {
-        interactionUI.SetActive(true);
+    [TargetRpc]
+    public void ChallengeAccepted(NetworkConnection target) {
+        interactionUI.gameObject.SetActive(true);
         //TODO chatUI SetActive(true);
-        //gardenManager SetActive(true);
+        // gardenManager SetActive(true);
         gameObject.SetActive(false);
         Debug.Log("finished joining?");
     }
@@ -67,17 +71,23 @@ public class ConnectScript : NetworkBehaviour {
     // Based on:
     // https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/compute-hash-values
     public static byte[] cryptoHash(byte[] input) {
-
         // Generate Hash
         byte[] byteString = new MD5CryptoServiceProvider().ComputeHash(input);
-
+        //Debug.Log("cryptoHashDone");
         return byteString;
     }
 
     public static byte[] combineByteArrays(byte[] a, byte[] b) {
-        byte[] c = new byte[a.Length+b.Length];
-        System.Buffer.BlockCopy(a, 0, c, 0, a.Length);
-        System.Buffer.BlockCopy(b, 0, c, a.Length, a.Length + b.Length);
+        //Debug.Log("a, b, c length: " + a.Length + ","+b.Length+","+c.Length);
+        //System.Buffer.BlockCopy(b, 0, c, a.Length ,b.Length);
+
+        // So uncivilised
+        var myList = new List<byte>();
+        myList.AddRange(a);
+        myList.AddRange(b);
+        byte[] c = myList.ToArray();
+
+        //Debug.Log("CombineArrayDone");
         return c;
     }
 }

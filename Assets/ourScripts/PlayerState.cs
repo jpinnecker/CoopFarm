@@ -395,8 +395,11 @@ public class PlayerState : NetworkBehaviour
 
         byte[] nonce = getChallengeFor(username); //also links the challenge to the username so it can be solved
         byte[] salt = getSalt(username); //getSalt(username); ?
+
+        NetworkConnection target = connectionToClient; // We want to know which client sent the call
+
         Debug.Log("CMDtryLogin done");
-        loginScript.receiveChallenge(nonce, salt);
+        loginScript.receiveChallenge(target, nonce, salt);
     }
 
     // TODO: make CMD getSalt & TrylogIn use a ClinetCall to change data there, let them use tpye void to avoid weaver error
@@ -406,8 +409,11 @@ public class PlayerState : NetworkBehaviour
         // special thanks to http://csharphelper.com/blog/2014/08/use-a-cryptographic-random-number-generator-in-c/
 
         byte[] theThing = getPasswordhashEntry(username);
-        byte[] challengeBytes = getChallengeFor(username);
-        byte[] challengeSolution = ConnectScript.combineByteArrays(theThing, challengeBytes);
+        byte[] challengeBytes = lastNonce; //getChallenge for should be swithcing between new generated and old.
+        byte[] challengeSolution = ConnectScript.cryptoHash( ConnectScript.combineByteArrays(theThing, challengeBytes) );
+
+        Debug.Log(theThing.ToString());
+        Debug.Log(challengeAnswer.ToString());
 
         // Compare challenge Answer with solution
         if (challengeAnswer.Length != challengeSolution.Length) {
@@ -421,7 +427,8 @@ public class PlayerState : NetworkBehaviour
 
         // Accept Login and register as proper user:
         Debug.Log("CMDAnswerChallenge done");
-        loginScript.ChallengeAccepted();
+        NetworkConnection target = connectionToClient;
+        loginScript.ChallengeAccepted(target);
 
         this.gameObject.SetActive(true); //other things to do on successfull login here
         interacUI.gameObject.SetActive(true);
@@ -431,22 +438,27 @@ public class PlayerState : NetworkBehaviour
     [Server]
     private byte[] getChallengeFor(string username) {
         // The random number provider.
+
         RNGCryptoServiceProvider Rand = new RNGCryptoServiceProvider();
 
         byte[] four_bytes = new byte[4];
         Rand.GetBytes( four_bytes );
+        lastNonce = four_bytes;
         
         return four_bytes;
     }
 
+    private static byte[] lastNonce;
+
     [Server]
     private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
-        byte[] returnEntry = new byte[] { 42, 16, 254 };
+        byte[] returnEntry = ConnectScript.cryptoHash( ConnectScript.combineByteArrays( ASCIIEncoding.ASCII.GetBytes("hoi!"), ASCIIEncoding.ASCII.GetBytes("salt")));
         return returnEntry;
     }
 
     private byte[] getSalt(string username) { //TODO: implement
         //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
-        return new byte[] { 254, 16, 42 };
+        return ASCIIEncoding.ASCII.GetBytes("salt");
+        //return new byte[] { 254, 16, 42 };
     }
 }
