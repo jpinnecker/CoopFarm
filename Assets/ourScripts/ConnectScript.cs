@@ -44,9 +44,9 @@ public class ConnectScript : NetworkBehaviour {
     [TargetRpc] //target is used by mirror for identification of the function call target.
     public void receiveChallenge(NetworkConnection target, byte[] nonce, byte[] salt) {
         Debug.Log("receiveChallenge begins");
+
+        string secret = passwordInput.text;
         //PlayerPref mechanic here TODO
-        string secret = PlayerPrefs.GetString("secret");
-        secret = "hoi!"; 
         byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(secret);
         byte[] challengeAnswer = cryptoHash(combineByteArrays(secretBytes, salt));
         challengeAnswer = cryptoHash(combineByteArrays(challengeAnswer, nonce));
@@ -59,8 +59,6 @@ public class ConnectScript : NetworkBehaviour {
     [TargetRpc]
     public void ChallengeAccepted(NetworkConnection target) {
         interactionUI.gameObject.SetActive(true);
-        //TODO chatUI SetActive(true);
-        // gardenManager SetActive(true);
         gameObject.SetActive(false);
         Debug.Log("finished joining?");
     }

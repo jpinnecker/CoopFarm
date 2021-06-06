@@ -411,15 +411,15 @@ public class PlayerState : NetworkBehaviour
         byte[] theThing = getPasswordhashEntry(username);
         byte[] challengeBytes = lastNonce; //getChallenge for should be swithcing between new generated and old.
         byte[] challengeSolution = ConnectScript.cryptoHash( ConnectScript.combineByteArrays(theThing, challengeBytes) );
-
-        Debug.Log(theThing.ToString());
-        Debug.Log(challengeAnswer.ToString());
+        Debug.Log(challengeAnswer[0]);
 
         // Compare challenge Answer with solution
         if (challengeAnswer.Length != challengeSolution.Length) {
             return;
         }
         for (int i = 0; i < challengeAnswer.Length; i++) {
+            Debug.Log(challengeSolution[i]);
+            Debug.Log(challengeAnswer[i]);
             if (challengeAnswer[i] != challengeSolution[i]) {
                 return;
             }
@@ -433,6 +433,8 @@ public class PlayerState : NetworkBehaviour
         this.gameObject.SetActive(true); //other things to do on successfull login here
         interacUI.gameObject.SetActive(true);
         chatUI.gameObject.SetActive(true);
+        gardenManager.gameObject.SetActive(true);
+        findGarden();
     }
 
     [Server]
@@ -449,6 +451,8 @@ public class PlayerState : NetworkBehaviour
     }
 
     private static byte[] lastNonce;
+    private static Dictionary<string, byte[]> secrets;
+    private static Dictionary<string, byte[]> salts;
 
     [Server]
     private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
@@ -456,9 +460,23 @@ public class PlayerState : NetworkBehaviour
         return returnEntry;
     }
 
+    [Server]
     private byte[] getSalt(string username) { //TODO: implement
         //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
         return ASCIIEncoding.ASCII.GetBytes("salt");
         //return new byte[] { 254, 16, 42 };
+    }
+
+    [Server]
+    public static SaveObject getSaveData() {
+        SaveObject so = new SaveObject();
+        so.secrets = PlayerState.secrets;
+        so.salts = PlayerState.salts;
+        return so;
+    }
+
+    public static void setSaveData(SaveObject so) {
+        PlayerState.secrets = so.secrets;
+        PlayerState.salts = so.salts;
     }
 }

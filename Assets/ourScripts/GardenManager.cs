@@ -1,23 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using System.Linq;
 using Mirror;
 
-public class GardenManager : MonoBehaviour
+public class GardenManager : NetworkBehaviour
 {
     [SerializeField]
     GardenData gardenPrefab;
+
+    private static List<GameObject> gardenList = new List<GameObject>();
 
     private static int gardenCounter = 0;
     private static int curLayerSize = 1;
     private static int garden_width = 5; // TODO adjust
     private static int garden_height = 3; // TODO adjust
-
-    /*
-    private void Start() {
-        gameObject.SetActive(false); // Enabled after Login
-    } */
 
     public GardenData LookupPlayerGarden(string playerName)
     {
@@ -28,6 +26,7 @@ public class GardenManager : MonoBehaviour
     {
         gardenCounter++;
         var garden = Instantiate(gardenPrefab, GenerateGardenPosition(), Quaternion.identity, transform);
+        gardenList.Add( garden.gameObject );
         garden.playerName = playerName;
         NetworkServer.Spawn(garden.gameObject);
         return garden;
@@ -89,5 +88,57 @@ public class GardenManager : MonoBehaviour
         y_position *= garden_height;
 
         return new Vector3(x_position, y_position, 25);
+    }
+
+    private static string directory = "/SaveData/";
+    private static string nameBase = "garden_saves";
+
+    [Command]
+    public void loadByJSON() {
+
+        //Check directory and file existence
+        string dir = Application.persistentDataPath + directory;
+        if (!Directory.Exists(dir)) {
+            Debug.LogError("Save Path invalid");
+        }
+
+        int nrElementsInFolder = 1; // TODO implement
+
+        string filePath = dir + nameBase + nrElementsInFolder;
+        if (!File.Exists(filePath) ) {
+            Debug.LogError("save file not detected. Are there more elements than save files in the folder?");
+            return;
+        }
+
+        //Load SaveObject and apply changes
+        SaveObject so = JsonUtility.FromJson<SaveObject>(dir);
+        GardenManager.gardenList = so.gardenList;
+        PlayerState.setSaveData(so);
+
+        foreach (GameObject go in gardenList) {
+            go.transform.parent = this.gameObject.transform; // Necessary?
+        } 
+    }
+
+    [Command]
+    public void saveByJSON() {
+        //Make directory if necessary
+        string dir = Application.persistentDataPath + directory;
+
+        if (!Directory.Exists(dir)) {
+            Directory.CreateDirectory(dir);
+        }
+
+        //For calculating name
+        int nrElementsInFolder = 1; // TODO implement
+
+        //Save as SaveObject
+        SaveObject so = PlayerState.getSaveData();
+        so.gardenList = GardenManager.gardenList;
+
+        Debug.Log(so.ToString());
+
+        string json = JsonUtility.ToJson(gardenList);
+        File.WriteAllText(dir + nameBase + nrElementsInFolder, json);
     }
 }
