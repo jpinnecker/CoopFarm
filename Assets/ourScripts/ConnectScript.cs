@@ -63,6 +63,12 @@ public class ConnectScript : NetworkBehaviour {
         Debug.Log("finished joining?");
     }
 
+    [TargetRpc]
+    public void getNewUserData(byte[] salt) {
+        byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(passwordInput.text);
+        PlayerState.CMDRegisterNewUser(,usernameInput.text, cryptoHash(combineByteArrays(secretBytes, salt)));
+    }
+
     //CLientcallback newUserData ? 
 
 

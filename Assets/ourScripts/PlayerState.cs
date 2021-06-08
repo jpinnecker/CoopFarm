@@ -385,21 +385,44 @@ public class PlayerState : NetworkBehaviour
     }
 
     //TODO make server vars:
-    private Dictionary<string, string> passwordHashDictionary = new Dictionary<string, string>();
-    private Dictionary<string, string> saltHashDictionary = new Dictionary<string, string>();
-    private Dictionary<string, string> NonceHashDictionary = new Dictionary<string, string>();
+    private static Dictionary<string, byte[]> passwordHashDictionary = new Dictionary<string, byte[]>();
+    private static Dictionary<string, byte[]> saltHashDictionary = new Dictionary<string, byte[]>();
+    private static Dictionary<string, byte[]> NonceHashDictionary = new Dictionary<string, byte[]>();
 
 
     [Command]
     public void CMDtryLogin(string username, ConnectScript loginScript) {
 
-        byte[] nonce = getChallengeFor(username); //also links the challenge to the username so it can be solved
-        byte[] salt = getSalt(username); //getSalt(username); ?
-
         NetworkConnection target = connectionToClient; // We want to know which client sent the call
+
+        // Automatically creates new salt if not already in Dictionary
+        byte[] salt = getSalt(username); //getSalt(username); ?
+        byte[] nonce = getChallengeFor(username); //also links the challenge to the username so it can be solved
+
+        //Register new nonce
+        if (!NonceHashDictionary.ContainsKey(username)) {
+            NonceHashDictionary.Add(username, nonce);
+        } else {
+            NonceHashDictionary[username] = nonce;
+        }
+
+        if (!passwordHashDictionary.ContainsKey(username)) { // new User?
+            loginScript.getNewUserData(salt);
+            return;
+        }
 
         Debug.Log("CMDtryLogin done");
         loginScript.receiveChallenge(target, nonce, salt);
+    }
+
+    [Command]
+    public void CMDRegisterNewUser(string username, byte[] hashSecret,ConnectScript loginScript) {
+        // Save hash
+        passwordHashDictionary.Add(username, hashSecret);
+
+        // Continue with old Login
+        NetworkConnection target = connectionToClient; // We want to know which client sent the call
+        loginScript.receiveChallenge(target, NonceHashDictionary[username], saltHashDictionary[username]);
     }
 
     // TODO: make CMD getSalt & TrylogIn use a ClinetCall to change data there, let them use tpye void to avoid weaver error
@@ -451,32 +474,40 @@ public class PlayerState : NetworkBehaviour
     }
 
     private static byte[] lastNonce;
-    private static Dictionary<string, byte[]> secrets;
-    private static Dictionary<string, byte[]> salts;
 
     [Server]
     private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
+        if ( !passwordHashDictionary.ContainsKey(username)) {
+
+        }
         byte[] returnEntry = ConnectScript.cryptoHash( ConnectScript.combineByteArrays( ASCIIEncoding.ASCII.GetBytes("hoi!"), ASCIIEncoding.ASCII.GetBytes("salt")));
         return returnEntry;
     }
 
     [Server]
-    private byte[] getSalt(string username) { //TODO: implement
-        //ASCIIEncoding.ASCII.GetBytes( string obj ) might be helpful
-        return ASCIIEncoding.ASCII.GetBytes("salt");
-        //return new byte[] { 254, 16, 42 };
+    private byte[] getSalt(string username) { 
+        if ( !saltHashDictionary.ContainsKey(username) ) {
+            byte[] salt = ASCIIEncoding.ASCII.GetBytes("salt"); //TODO replace with random salt
+            saltHashDictionary.Add(username, salt);
+            return salt;
+        }
+        return saltHashDictionary[username];
+
     }
+
+    // ============================= SAVE MECHANIC
 
     [Server]
     public static SaveObject getSaveData() {
         SaveObject so = new SaveObject();
-        so.secrets = PlayerState.secrets;
-        so.salts = PlayerState.salts;
+        so.secrets = passwordHashDictionary;
+        so.salts = saltHashDictionary;
         return so;
     }
 
+    [Server]
     public static void setSaveData(SaveObject so) {
-        PlayerState.secrets = so.secrets;
-        PlayerState.salts = so.salts;
+        PlayerState.passwordHashDictionary = so.secrets;
+        PlayerState.saltHashDictionary = so.salts;
     }
 }

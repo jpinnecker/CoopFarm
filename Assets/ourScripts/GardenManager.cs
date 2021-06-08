@@ -5,8 +5,25 @@ using UnityEngine;
 using System.Linq;
 using Mirror;
 
-public class GardenManager : NetworkBehaviour
-{
+public class GardenManager : NetworkBehaviour {
+
+    private static int updateCount = 0;
+
+    [Server]
+    public void FixedUpdate() {
+
+        if (hasAuthority) {
+            Debug.Log("Why tho?");
+        }
+
+        updateCount++;
+        if (updateCount == 25) {
+            saveByJSON();
+        } else if (updateCount == 150)  {
+            loadByJSON();
+        }
+    }
+
     [SerializeField]
     GardenData gardenPrefab;
 
@@ -93,7 +110,7 @@ public class GardenManager : NetworkBehaviour
     private static string directory = "/SaveData/";
     private static string nameBase = "garden_saves";
 
-    [Command]
+    //[Command]
     public void loadByJSON() {
 
         //Check directory and file existence
@@ -104,7 +121,7 @@ public class GardenManager : NetworkBehaviour
 
         int nrElementsInFolder = 1; // TODO implement
 
-        string filePath = dir + nameBase + nrElementsInFolder;
+        string filePath = dir + nameBase + nrElementsInFolder + ".json";
         if (!File.Exists(filePath) ) {
             Debug.LogError("save file not detected. Are there more elements than save files in the folder?");
             return;
@@ -120,25 +137,30 @@ public class GardenManager : NetworkBehaviour
         } 
     }
 
-    [Command]
+    //[Command]
     public void saveByJSON() {
         //Make directory if necessary
         string dir = Application.persistentDataPath + directory;
+        Debug.Log("Save directory is " + dir);
 
         if (!Directory.Exists(dir)) {
+            Debug.Log("Created new");
             Directory.CreateDirectory(dir);
         }
 
         //For calculating name
-        int nrElementsInFolder = 1; // TODO implement
+        int nrElementsInFolder = 0; // TODO implement
 
         //Save as SaveObject
         SaveObject so = PlayerState.getSaveData();
         so.gardenList = GardenManager.gardenList;
 
         Debug.Log(so.ToString());
+        Debug.Log(so.gardenList.ToString());
+        Debug.Log(so.secrets.ToString());
+        Debug.Log(so.salts.ToString());
 
-        string json = JsonUtility.ToJson(gardenList);
-        File.WriteAllText(dir + nameBase + nrElementsInFolder, json);
+        string json = JsonUtility.ToJson(so);
+        File.WriteAllText(dir + nameBase + nrElementsInFolder+1  + ".json", json);
     }
 }
