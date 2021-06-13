@@ -396,18 +396,20 @@ public class PlayerState : NetworkBehaviour
         NetworkConnection target = connectionToClient; // We want to know which client sent the call
 
         // Automatically creates new salt if not already in Dictionary
-        byte[] salt = getSalt(username); //getSalt(username); ?
-        byte[] nonce = getChallengeFor(username); //also links the challenge to the username so it can be solved
+        byte[] salt = getSalt(username); 
+        byte[] nonce = getChallenge(); // New Nonce has to be saved for check
 
         //Register new nonce
         if (!NonceHashDictionary.ContainsKey(username)) {
+            Debug.Log("added Nonce for " + username);
             NonceHashDictionary.Add(username, nonce);
         } else {
+            Debug.Log("added Nonce for " + username);
             NonceHashDictionary[username] = nonce;
         }
 
         if (!passwordHashDictionary.ContainsKey(username)) { // new User?
-            loginScript.getNewUserData(salt);
+            loginScript.getNewUserData(target, salt);
             return;
         }
 
@@ -422,6 +424,10 @@ public class PlayerState : NetworkBehaviour
 
         // Continue with old Login
         NetworkConnection target = connectionToClient; // We want to know which client sent the call
+        Debug.Log("Registering new User:" + username);
+        Debug.Log(NonceHashDictionary[username]);
+        Debug.Log(saltHashDictionary[username]);
+        Debug.Log(passwordHashDictionary[username]);
         loginScript.receiveChallenge(target, NonceHashDictionary[username], saltHashDictionary[username]);
     }
 
@@ -434,15 +440,15 @@ public class PlayerState : NetworkBehaviour
         byte[] theThing = getPasswordhashEntry(username);
         byte[] challengeBytes = lastNonce; //getChallenge for should be swithcing between new generated and old.
         byte[] challengeSolution = ConnectScript.cryptoHash( ConnectScript.combineByteArrays(theThing, challengeBytes) );
-        Debug.Log(challengeAnswer[0]);
+        //Debug.Log(challengeAnswer[0]);
 
         // Compare challenge Answer with solution
         if (challengeAnswer.Length != challengeSolution.Length) {
             return;
         }
         for (int i = 0; i < challengeAnswer.Length; i++) {
-            Debug.Log(challengeSolution[i]);
-            Debug.Log(challengeAnswer[i]);
+            //Debug.Log(challengeSolution[i]);
+            //Debug.Log(challengeAnswer[i]);
             if (challengeAnswer[i] != challengeSolution[i]) {
                 return;
             }
@@ -461,9 +467,9 @@ public class PlayerState : NetworkBehaviour
     }
 
     [Server]
-    private byte[] getChallengeFor(string username) {
-        // The random number provider.
+    private byte[] getChallenge() {
 
+        // The random number provider.
         RNGCryptoServiceProvider Rand = new RNGCryptoServiceProvider();
 
         byte[] four_bytes = new byte[4];
@@ -478,7 +484,8 @@ public class PlayerState : NetworkBehaviour
     [Server]
     private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
         if ( !passwordHashDictionary.ContainsKey(username)) {
-
+            Debug.Log("No password for username " + username);
+            return null;
         }
         byte[] returnEntry = ConnectScript.cryptoHash( ConnectScript.combineByteArrays( ASCIIEncoding.ASCII.GetBytes("hoi!"), ASCIIEncoding.ASCII.GetBytes("salt")));
         return returnEntry;
@@ -499,15 +506,17 @@ public class PlayerState : NetworkBehaviour
 
     [Server]
     public static SaveObject getSaveData() {
+        Debug.Log("getSaveData");
         SaveObject so = new SaveObject();
-        so.secrets = passwordHashDictionary;
-        so.salts = saltHashDictionary;
+        so.setSecrets( passwordHashDictionary );
+        so.setSalts( saltHashDictionary );
         return so;
     }
 
     [Server]
     public static void setSaveData(SaveObject so) {
-        PlayerState.passwordHashDictionary = so.secrets;
-        PlayerState.saltHashDictionary = so.salts;
+        Debug.Log("setSaveData");
+        PlayerState.passwordHashDictionary = so.getSecrets();
+        PlayerState.saltHashDictionary = so.getSalts();
     }
 }

@@ -121,7 +121,13 @@ public class GardenManager : NetworkBehaviour {
 
         int nrElementsInFolder = 1; // TODO implement
 
-        string filePath = dir + nameBase + nrElementsInFolder + ".json";
+        string filePath;
+        if (nrElementsInFolder > 9 ) {
+            filePath = dir + nameBase + nrElementsInFolder + ".json";
+        } else {
+            filePath = dir + nameBase + "0" + nrElementsInFolder + ".json";
+        }
+
         if (!File.Exists(filePath) ) {
             Debug.LogError("save file not detected. Are there more elements than save files in the folder?");
             return;
@@ -157,10 +163,14 @@ public class GardenManager : NetworkBehaviour {
 
         Debug.Log(so.ToString());
         Debug.Log(so.gardenList.ToString());
-        Debug.Log(so.secrets.ToString());
-        Debug.Log(so.salts.ToString());
+        Debug.Log(so.secretsStrings.ToString());
+        Debug.Log(so.saltsStrings.ToString());
+
+        Debug.Log(so.secretsStrings["Temmie"].ToString());
+        Debug.Log(so.saltsStrings["Temmie"].ToString());
 
         string json = JsonUtility.ToJson(so);
+        Debug.Log(json);
         File.WriteAllText(dir + nameBase + nrElementsInFolder+1  + ".json", json);
     }
 }

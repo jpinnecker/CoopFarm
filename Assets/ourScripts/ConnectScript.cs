@@ -14,7 +14,6 @@ public class ConnectScript : NetworkBehaviour {
     [SerializeField] private NetworkManager netMan;
     private InteractionUI interactionUI;
     private PlayerState plState;
-    private string username;
 
     private void Start() {
         interactionUI = GameObject.FindObjectOfType<InteractionUI>();
@@ -31,7 +30,7 @@ public class ConnectScript : NetworkBehaviour {
     }
     public void JoinGame() {
         // PlayerPref save mechanic here TODO
-        string username = "MustermanUser";
+        string username = usernameInput.text;
         // string username = PlayerPrefs.GetString("username"); // save further up?
 
         plState = interactionUI.locPlayer;
@@ -46,6 +45,7 @@ public class ConnectScript : NetworkBehaviour {
         Debug.Log("receiveChallenge begins");
 
         string secret = passwordInput.text;
+        string username = usernameInput.text;
         //PlayerPref mechanic here TODO
         byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(secret);
         byte[] challengeAnswer = cryptoHash(combineByteArrays(secretBytes, salt));
@@ -53,6 +53,9 @@ public class ConnectScript : NetworkBehaviour {
 
         // Check for success
         Debug.Log("receiveChallenge done");
+        Debug.Log("username : " + username);
+        Debug.Log("answer to challenge : " + challengeAnswer.ToString());
+
         plState.CMDAnswerChallenge(username, challengeAnswer, this);
     }
 
@@ -64,9 +67,9 @@ public class ConnectScript : NetworkBehaviour {
     }
 
     [TargetRpc]
-    public void getNewUserData(byte[] salt) {
+    public void getNewUserData(NetworkConnection target, byte[] salt) {
         byte[] secretBytes = ASCIIEncoding.ASCII.GetBytes(passwordInput.text);
-        PlayerState.CMDRegisterNewUser(,usernameInput.text, cryptoHash(combineByteArrays(secretBytes, salt)));
+        plState.CMDRegisterNewUser(usernameInput.text, cryptoHash(combineByteArrays(secretBytes, salt)), this);
     }
 
     //CLientcallback newUserData ? 
