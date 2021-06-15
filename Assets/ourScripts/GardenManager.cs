@@ -135,6 +135,7 @@ public class GardenManager : NetworkBehaviour {
 
         //Load SaveObject and apply changes
         SaveObject so = JsonUtility.FromJson<SaveObject>(dir);
+
         GardenManager.gardenList = so.gardenList;
         PlayerState.setSaveData(so);
 
@@ -166,8 +167,8 @@ public class GardenManager : NetworkBehaviour {
         Debug.Log(so.secretsStrings.ToString());
         Debug.Log(so.saltsStrings.ToString());
 
-        Debug.Log(so.secretsStrings["Temmie"].ToString());
-        Debug.Log(so.saltsStrings["Temmie"].ToString());
+        Debug.Log("Temmies Secret is " + so.secretsStrings["Temmie"].ToString());
+        Debug.Log("Temmies Salt is " + so.saltsStrings["Temmie"].ToString());
 
         string json = JsonUtility.ToJson(so);
         Debug.Log(json);

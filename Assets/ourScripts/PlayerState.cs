@@ -397,7 +397,7 @@ public class PlayerState : NetworkBehaviour
 
         // Automatically creates new salt if not already in Dictionary
         byte[] salt = getSalt(username); 
-        byte[] nonce = getChallenge(); // New Nonce has to be saved for check
+        byte[] nonce = getNonce(); // New Nonce has to be saved for check
 
         //Register new nonce
         if (!NonceHashDictionary.ContainsKey(username)) {
@@ -467,7 +467,7 @@ public class PlayerState : NetworkBehaviour
     }
 
     [Server]
-    private byte[] getChallenge() {
+    private byte[] getNonce() {
 
         // The random number provider.
         RNGCryptoServiceProvider Rand = new RNGCryptoServiceProvider();
@@ -482,19 +482,20 @@ public class PlayerState : NetworkBehaviour
     private static byte[] lastNonce;
 
     [Server]
-    private byte[] getPasswordhashEntry(string username) { // TODO: replace with actual entrys and stuff
+    private byte[] getPasswordhashEntry(string username) { 
         if ( !passwordHashDictionary.ContainsKey(username)) {
             Debug.Log("No password for username " + username);
             return null;
         }
-        byte[] returnEntry = ConnectScript.cryptoHash( ConnectScript.combineByteArrays( ASCIIEncoding.ASCII.GetBytes("hoi!"), ASCIIEncoding.ASCII.GetBytes("salt")));
-        return returnEntry;
+        //byte[] returnEntry = ConnectScript.cryptoHash( ConnectScript.combineByteArrays( ASCIIEncoding.ASCII.GetBytes("hoi!"), ASCIIEncoding.ASCII.GetBytes("salt")));
+        return passwordHashDictionary[username];
     }
 
     [Server]
     private byte[] getSalt(string username) { 
-        if ( !saltHashDictionary.ContainsKey(username) ) {
-            byte[] salt = ASCIIEncoding.ASCII.GetBytes("salt"); //TODO replace with random salt
+        if ( !saltHashDictionary.ContainsKey(username)) {
+            byte[] salt = getNonce();
+            //byte[] salt = ASCIIEncoding.ASCII.GetBytes("salt"); //TODO replace with random salt
             saltHashDictionary.Add(username, salt);
             return salt;
         }
