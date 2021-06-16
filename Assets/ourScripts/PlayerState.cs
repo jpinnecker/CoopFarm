@@ -244,6 +244,12 @@ public class PlayerState : NetworkBehaviour
         NetworkServer.Spawn(plant.gameObject);
         seedInventory[seedSlot] = -1;
         UpdateInteracUI();
+        foreach (GardenBehaviour gb in GardenBehaviour.gardenList) {
+            if (gb.containsLocation(location)) {
+                gb.addPlant(plant);
+            }
+        }
+        Debug.Log("Did not find Garden for new plant at " + location.ToString()) ;
     }
 
     [Command]

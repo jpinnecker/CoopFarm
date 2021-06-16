@@ -8,6 +8,7 @@ public class GardenBehaviour : NetworkBehaviour
 {
     public static List<GardenBehaviour> gardenList = new List<GardenBehaviour>();
     private int gardenNr = -1;
+    private List<PlantBehavior> plantsInside;
 
     private static int x_core_dist = 100;
     private static int y_core_dist = 100;
@@ -40,5 +41,20 @@ public class GardenBehaviour : NetworkBehaviour
         transform.position = position;
     }
 
+    public Boolean containsLocations(Vector2 loc) { //TDO pray that no transformationproblems occur
+        Vector3 pos = gameObject.transform.position;
+        if (loc.x < pos.x + x_core_dist/2 &&
+            loc.x > pos.x - x_core_dist / 2 &&
+            loc.y < pos.y + y_core_dist / 2 &&
+            loc.y > pos.y - y_core_dist / 2) {
+                
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    public void addPlant(PlantBehavior plant) {
+        plantsInside.Add(plant);
+    }
 }
