@@ -41,7 +41,7 @@ public class GardenBehaviour : NetworkBehaviour
         transform.position = position;
     }
 
-    public Boolean containsLocations(Vector2 loc) { //TDO pray that no transformationproblems occur
+    public Boolean containsLocation(Vector2 loc) { //TDO pray that no transformationproblems occur
         Vector3 pos = gameObject.transform.position;
         if (loc.x < pos.x + x_core_dist/2 &&
             loc.x > pos.x - x_core_dist / 2 &&

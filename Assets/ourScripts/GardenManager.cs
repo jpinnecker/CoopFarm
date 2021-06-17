@@ -46,6 +46,7 @@ public class GardenManager : NetworkBehaviour {
         gardenList.Add( garden.gameObject );
         garden.playerName = playerName;
         NetworkServer.Spawn(garden.gameObject);
+        GardenBehaviour.gardenList.Add(garden.GetComponent<GardenBehaviour>());
         return garden;
     }
 
@@ -136,7 +137,7 @@ public class GardenManager : NetworkBehaviour {
         //Load SaveObject and apply changes
         SaveObject so = JsonUtility.FromJson<SaveObject>(dir);
 
-        GardenManager.gardenList = so.gardenList;
+        //GardenManager.gardenList = so.gardenList;
         PlayerState.setSaveData(so);
 
         foreach (GameObject go in gardenList) {
@@ -160,15 +161,16 @@ public class GardenManager : NetworkBehaviour {
 
         //Save as SaveObject
         SaveObject so = PlayerState.getSaveData();
-        so.gardenList = GardenManager.gardenList;
+        //so.gardenList = GardenManager.gardenList;
 
         Debug.Log(so.ToString());
-        Debug.Log(so.gardenList.ToString());
-        Debug.Log(so.secretsStrings.ToString());
-        Debug.Log(so.saltsStrings.ToString());
+        //Debug.Log(so.gardenList.ToString());
+        //Debug.Log(so.secretStrings.ToString());
+        //Debug.Log(so.saltsStrings.ToString());
 
-        Debug.Log("Temmies Secret is " + so.secretsStrings["Temmie"].ToString());
-        Debug.Log("Temmies Salt is " + so.saltsStrings["Temmie"].ToString());
+        Debug.Log("Temmies Secret is " + so.getSecrets()["Temmie"].ToString());
+        Debug.Log("Temmies Salt is " + so.getSalts()["Temmie"].ToString());
+        //Debug.Log("Temmies garden is " + so.saltsStrings["Temmie"].ToString());
 
         string json = JsonUtility.ToJson(so);
         Debug.Log(json);

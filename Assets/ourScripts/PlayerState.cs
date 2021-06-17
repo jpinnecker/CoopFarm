@@ -75,7 +75,6 @@ public class PlayerState : NetworkBehaviour
         var myGarden = gardenManager.LookupPlayerGarden(playerName);
         if (myGarden == null) {
             myGarden = gardenManager.CreatePlayerGarden(playerName);
-
         }
         var myGardenId = myGarden.gameObject.GetComponent<NetworkIdentity>();
         AssignGarden(myGardenId);
@@ -515,8 +514,8 @@ public class PlayerState : NetworkBehaviour
     public static SaveObject getSaveData() {
         Debug.Log("getSaveData");
         SaveObject so = new SaveObject();
-        so.setSecrets( passwordHashDictionary );
-        so.setSalts( saltHashDictionary );
+        so.setSecretsAndSalts( passwordHashDictionary , saltHashDictionary );
+        so.SetGardens();
         return so;
     }
 

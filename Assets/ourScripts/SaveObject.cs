@@ -5,66 +5,68 @@ using System.Text;
 
 [System.Serializable]
 public class SaveObject {
-    public List<GameObject> gardenList;
-    public Dictionary<string, string> secretsStrings;
-    public Dictionary<string, string> saltsStrings;
+    //public List<GameObject> gardenList;
+    //public Dictionary<string, string> saltsStrings;
+    public List<string> secretStrings;
+    public List<string> saltStrings;
+    public List<string> usernameStrings;
 
-    private List<Vector3> gardenPos;
-    private List<string> gardenOwners;
+    public List<Vector3> gardenPos;
+    public List<string> gardenOwners;
+    public List<GardenBehaviour> gardenListing;
+    public List<PlantBehavior> gardenPlants;
 
-    public void setSecrets(Dictionary<string, byte[]> bytes) {
-        secretsStrings = new Dictionary<string, string>();
-        foreach (string username in bytes.Keys) {
-            secretsStrings.Add(username, System.BitConverter.ToString(bytes[username]));
+    public void setSecretsAndSalts(Dictionary<string, byte[]> newSecrets, Dictionary<string, byte[]> newSalts ) {
+        usernameStrings = new List<string>();
+        secretStrings = new List<string>();
+        saltStrings = new List<string>();
+        foreach (string username in newSalts.Keys) {
+            usernameStrings.Add(username);
+            secretStrings.Add(System.BitConverter.ToString(newSecrets[username]));
+            saltStrings.Add(System.BitConverter.ToString(newSalts[username]));
         }
     }
 
     public Dictionary<string, byte[]> getSecrets() {
         Dictionary<string, byte[]>  secrets = new Dictionary<string, byte[]>();
-        foreach (string username in secretsStrings.Keys) {
-            secrets.Add(username, ASCIIEncoding.ASCII.GetBytes(secretsStrings[username])   );
+        for (int it = 0; it < usernameStrings.Count; it++) {
+            string username = usernameStrings[it];
+            secrets.Add(username, ASCIIEncoding.ASCII.GetBytes(secretStrings[it]));
         }
         return secrets;
     }
 
-    public void setSalts(Dictionary<string, byte[]> bytes) {
-        saltsStrings = new Dictionary<string, string>();
-        foreach (string username in bytes.Keys) {
-            saltsStrings.Add(username, System.BitConverter.ToString(bytes[username]));
-        }
-    }
-
     public Dictionary<string, byte[]> getSalts() {
         Dictionary<string, byte[]>  salts = new Dictionary<string, byte[]>();
-        foreach (string username in saltsStrings.Keys) {
-            salts.Add(username, ASCIIEncoding.ASCII.GetBytes(saltsStrings[username]));
+        for (int it = 0; it < usernameStrings.Count; it++) {
+            string username = usernameStrings[it];
+            salts.Add(username, ASCIIEncoding.ASCII.GetBytes(saltStrings[it]));
         }
         return salts;
     }
 
     public void SetGardens() {
+        gardenPos = new List<Vector3>();
+        gardenOwners = new List<string>();
+        gardenListing = new List<GardenBehaviour>();
 
         //Iterate over gardens
+        Debug.Log("Setgardens - gardenCount is " + GardenBehaviour.gardenList.Count);
         foreach (GardenBehaviour gb in GardenBehaviour.gardenList) {
 
             //Save gardens
             gardenPos.Add(gb.gameObject.transform.position);
             GardenData gd = (GardenData)gb.gameObject.GetComponent(typeof(GardenData));
             gardenOwners.Add(gd.playerName);
+            gardenListing.Add(gb); //Plants are part of gb
         }
-
-        
-        //Iterate over all plants
-        //Assign the plants to gardens
-        //Save plants as list of transformation, position of garden first list element
-        //Add List of Plant names
-        //Save this positionList
     }
 
-    public List<GameObject> GetGardens() {
+    public List<GameObject> GetGardens() { 
         //reverse SetGardens
+        //TODO also reset gardenCounter for new gardens!
         return null;
     }
 
-    //Ninces are not saved, as they are only for runtime uses.
+    //Nonces are not saved, as they are only for runtime uses.
 }
