@@ -4,8 +4,8 @@ using UnityEngine;
 using Mirror;
 
 [RequireComponent(typeof(NetworkIdentity))]
-public class PlantBehavior : NetworkBehaviour
-{
+public class PlantBehavior : NetworkBehaviour {
+
     [SyncVar(hook = nameof(OnGrowth))]
     int growthStage = 0;
     [SerializeField]
@@ -16,6 +16,14 @@ public class PlantBehavior : NetworkBehaviour
     int caresForGrowth = 7;
 
     int currentCares = 0;
+    private float[] loc = new float[3];
+
+    private void Start() {
+        Vector3 vec = gameObject.transform.position;
+        loc[0] = vec.x;
+        loc[1] = vec.y;
+        loc[2] = vec.z;
+    }
 
     public double GetWateringCooldown()
     {
@@ -59,5 +67,9 @@ public class PlantBehavior : NetworkBehaviour
         GameObject playerObj = NetworkClient.localPlayer.gameObject;
         PlayerState plState = playerObj.GetComponent(typeof(PlayerState)) as PlayerState;
         plState.cmdPlantInteraction(this);
+    }
+
+    public float[] getPositionAsArr() {
+        return loc;
     }
 }

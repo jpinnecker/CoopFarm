@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using System.Linq;
 using Mirror;
@@ -11,10 +12,6 @@ public class GardenManager : NetworkBehaviour {
 
     [Server]
     public void FixedUpdate() {
-
-        if (hasAuthority) {
-            Debug.Log("Why tho?");
-        }
 
         updateCount++;
         if (updateCount == 25) {
@@ -28,6 +25,8 @@ public class GardenManager : NetworkBehaviour {
     GardenData gardenPrefab;
 
     private static List<GameObject> gardenList = new List<GameObject>();
+
+    private PlantTypeMapping plantTypeMapping = GameObject.FindObjectOfType<PlantTypeMapping>();
 
     private static int gardenCounter = 0;
     private static int curLayerSize = 1;
@@ -134,15 +133,48 @@ public class GardenManager : NetworkBehaviour {
             return;
         }
 
+
+
+        BinaryFormatter formatter = new BinaryFormatter();
+        FileStream strem = new FileStream(dir + "testSave.data", FileMode.Open);
+        SaveObject so = formatter.Deserialize(strem) as SaveObject;
+        strem.Close();
+        Debug.Log(so.secretStrings[0].ToString());
+
+
         //Load SaveObject and apply changes
-        SaveObject so = JsonUtility.FromJson<SaveObject>(dir);
+        //SaveObject so = JsonUtility.FromJson<SaveObject>(dir);
 
         //GardenManager.gardenList = so.gardenList;
+        foreach (GameObject go in gardenList) { //Delete all old Gardens
+            //TODO destory all plants
+            Destroy(go, 0);
+        }
         PlayerState.setSaveData(so);
 
-        foreach (GameObject go in gardenList) {
-            go.transform.parent = this.gameObject.transform; // Necessary?
-        } 
+        //Reconstruction of gardens and plants
+        int plantNr = 0;
+        for (int itNr = 0; itNr < so.gardenOwners.Count; itNr++) {
+            string owner = so.gardenOwners[itNr];
+            GameObject currentGarden = CreatePlayerGarden(owner).gameObject; // also adds itsself to GardenBehaviors gardenList
+
+            //check for associated plants
+            int nrOfPlants = so.plantDistribution[itNr];
+            if (nrOfPlants == 0) {
+                continue;
+            } else {
+
+                //Add plants one after another
+                while ( nrOfPlants > 0 ) {
+                    PlantBehavior pb = so.gardenPlants[plantNr];
+                    float[] loc = pb.getPositionAsArr();
+                    Vector3 location = new Vector3(loc[0], loc[1], loc[2]);
+                    PlantBehavior plantPrefab = plantTypeMapping.GetPlantTypePrefab( 3 ); //TODO save and get proper identity Nr
+                    Instantiate(plantPrefab, location, Quaternion.identity, currentGarden.transform);
+                    plantNr++;
+                }
+            }
+        }
     }
 
     //[Command]
@@ -164,13 +196,18 @@ public class GardenManager : NetworkBehaviour {
         //so.gardenList = GardenManager.gardenList;
 
         Debug.Log(so.ToString());
-        //Debug.Log(so.gardenList.ToString());
-        //Debug.Log(so.secretStrings.ToString());
-        //Debug.Log(so.saltsStrings.ToString());
 
         Debug.Log("Temmies Secret is " + so.getSecrets()["Temmie"].ToString());
         Debug.Log("Temmies Salt is " + so.getSalts()["Temmie"].ToString());
-        //Debug.Log("Temmies garden is " + so.saltsStrings["Temmie"].ToString());
+
+
+
+        BinaryFormatter formatter = new BinaryFormatter();
+        FileStream strem = new FileStream(dir + "testSave.data", FileMode.Create);
+        formatter.Serialize(strem, so);
+        strem.Close();
+
+
 
         string json = JsonUtility.ToJson(so);
         Debug.Log(json);

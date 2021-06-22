@@ -5,16 +5,13 @@ using System.Text;
 
 [System.Serializable]
 public class SaveObject {
-    //public List<GameObject> gardenList;
-    //public Dictionary<string, string> saltsStrings;
     public List<string> secretStrings;
     public List<string> saltStrings;
     public List<string> usernameStrings;
 
-    public List<Vector3> gardenPos;
     public List<string> gardenOwners;
-    public List<GardenBehaviour> gardenListing;
     public List<PlantBehavior> gardenPlants;
+    public List<int> plantDistribution;
 
     public void setSecretsAndSalts(Dictionary<string, byte[]> newSecrets, Dictionary<string, byte[]> newSalts ) {
         usernameStrings = new List<string>();
@@ -46,26 +43,30 @@ public class SaveObject {
     }
 
     public void SetGardens() {
-        gardenPos = new List<Vector3>();
+
+        // Information about garden position is implicit - order of the Lists
+
         gardenOwners = new List<string>();
-        gardenListing = new List<GardenBehaviour>();
+        plantDistribution = new List<int>();
 
         //Iterate over gardens
         Debug.Log("Setgardens - gardenCount is " + GardenBehaviour.gardenList.Count);
         foreach (GardenBehaviour gb in GardenBehaviour.gardenList) {
 
             //Save gardens
-            gardenPos.Add(gb.gameObject.transform.position);
             GardenData gd = (GardenData)gb.gameObject.GetComponent(typeof(GardenData));
             gardenOwners.Add(gd.playerName);
-            gardenListing.Add(gb); //Plants are part of gb
+            int plantCounter = 0;
+            if ( gb.getPlantsInside().Count == 0 ) {
+                plantDistribution.Add(plantCounter);
+                continue;
+            }
+            foreach (PlantBehavior pbh in gb.getPlantsInside()) {
+                plantCounter++;
+                gardenPlants.Add(pbh);
+            }
+            plantDistribution.Add(plantCounter);
         }
-    }
-
-    public List<GameObject> GetGardens() { 
-        //reverse SetGardens
-        //TODO also reset gardenCounter for new gardens!
-        return null;
     }
 
     //Nonces are not saved, as they are only for runtime uses.
